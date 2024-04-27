@@ -4,7 +4,7 @@
 from pathlib import Path
 import pandas as pd
 import requests
-from .constants import SCOUTING_DATABASE_URL
+from .constants import SCOUTING_DATABASE_URL, SCOUTING_DATABASE_FILENAME
 
 
 class SDB:
@@ -12,6 +12,7 @@ class SDB:
 
     def __init__(self):
         self.url = SCOUTING_DATABASE_URL
+        self.filename = SCOUTING_DATABASE_FILENAME
 
     def __get_scouting_data_from_server(self):
         # Get data from the server
@@ -28,17 +29,25 @@ class SDB:
             exp_num_cols = None
             db = []
             line_continuation = ""
+
+            # Process each line
             for line in f.readlines():
                 line_num += 1
                 split_line = line.strip().split(",")
                 num_cols = len(split_line)
+
+                # The first row has the column headers
                 if first_row:
                     first_row = False
                     exp_num_cols = len(line.strip().split(","))
                     db.append(split_line)
                     continue
+
+                # If the row has the correct number of columns, it's good-to-go
                 if num_cols == exp_num_cols:
                     db.append(split_line)
+
+                # Handle the non-conforming number of columns
                 else:
                     if line_continuation:
                         line_continuation += line.strip()
@@ -52,14 +61,15 @@ class SDB:
                         if num_cols < exp_num_cols:
                             print(
                                 f"Non-conforming CSV (continuation): line={line_num},\
-                                num_col={num_cols}, exp_num_cols={exp_num_cols}"
+                                  num_col={num_cols}, exp_num_cols={exp_num_cols}"
                             )
                             line_continuation = line.strip()
+
                         # Assume the extra commas are in the comments
                         else:
                             print(
                                 f"Non-conforming CSV (extra commas): line={line_num},\
-                                num_col={num_cols}, exp_num_cols={exp_num_cols}"
+                                  num_col={num_cols}, exp_num_cols={exp_num_cols}"
                             )
                             while num_cols != exp_num_cols:
                                 split_line[-3] += split_line[-2]
@@ -68,10 +78,11 @@ class SDB:
                                 s = ",".join(split_line)
                                 print(f"  Comments concatenated: {s}\n")
 
+        # Save the cleaned up scouting database
         df = pd.DataFrame(db[1:], columns=db[0])
-        df.to_csv("full_scouting_database.csv", index=False)
+        df.to_csv(self.filename, index=False)
 
-    def get_scouting_data(self, force: bool = False) -> pd.DataFrame:
+    def get_full_scouting_database(self, force: bool = False) -> pd.DataFrame:
         """Get the whole 4607 scouting database
 
         Args:
@@ -80,9 +91,24 @@ class SDB:
         Returns:
             pd.DataFrame: 4607's scouting database
         """
-        filename = "full_scouting_database.csv"
         if not force:
-            if Path(filename).is_file():
-                return pd.read_csv(filename)
+            if Path(self.filename).is_file():
+                return pd.read_csv(self.filename)
         self.__get_scouting_data_from_server()
-        return pd.read_csv(filename)
+        return pd.read_csv(self.filename)
+
+    def get_event_scouting_data(self, event_key: str, force: bool = False) -> pd.DataFrame:
+        """Get the 4607 scouting data for an event
+
+        This function will filter out all of the rows matching the input event_key. The unique
+        row ID is removed and the duplicate rows are dropped.
+
+        Args:
+            event_key (str): The FIRST event key
+            force (bool, optional): Skip cached data and force a refresh. Defaults to False.
+
+        Returns:
+            pd.DataFrame: 4607's scouting database
+        """
+        df = self.get_full_scouting_database(force)
+        return df[df["event_key"] == event_key].drop("id", axis=1).drop_duplicates()
