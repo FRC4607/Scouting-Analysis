@@ -1,5 +1,0 @@
-[MESSAGES CONTROL]
-disable = line-too-long
-
-[FORMAT]
-expected-line-ending-format = CRLF
