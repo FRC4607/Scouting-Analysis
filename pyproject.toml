@@ -1,0 +1,12 @@
+[tool.hatch.build.targets.wheel]
+packages = ["src/scouting_analysis"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Scouting-Analysis"
+version = "0.0.0"
+description = "Tools to analyze FRC4607 scouting data"
+requires-python = ">=3.7"
