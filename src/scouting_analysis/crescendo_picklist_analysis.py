@@ -60,9 +60,7 @@ class CrescendoPicklistAnalysis:
             pd.DataFrame: The autonomous analysis teams summary
         """
         df["mobility"] = df["mobility"].replace({True: 2, False: 0})
-        df["pre_load_score"] = df.fillna(0)["pre_load_score"].replace(
-            {True: 1, False: 0}
-        )
+        df["pre_load_score"] = df.fillna(0)["pre_load_score"].replace({True: 1, False: 0})
 
         df["total_auto_points"] = (
             df.fillna(0)["mobility"]
@@ -86,9 +84,7 @@ class CrescendoPicklistAnalysis:
 
         teams_summary = pd.merge(
             teams_summary,
-            pd.DataFrame(
-                (df.groupby("team_number")["pass_note"].sum()).rename("total_passes")
-            ).reset_index(),
+            pd.DataFrame((df.groupby("team_number")["pass_note"].sum()).rename("total_passes")).reset_index(),
             on="team_number",
         )
         return teams_summary
@@ -118,21 +114,13 @@ class CrescendoPicklistAnalysis:
         Returns:
             pd.DataFrame: The teleop analysis teams summary
         """
-        df["teleop_speaker_made"] = (
-            df.fillna(0)["zone1_shot_made"] + df.fillna(0)["zone2_shot_made"]
-        )
+        df["teleop_speaker_made"] = df.fillna(0)["zone1_shot_made"] + df.fillna(0)["zone2_shot_made"]
 
-        df["total_teleop_pieces_made"] = (
-            df.fillna(0)["teleop_amp"] + df.fillna(0)["teleop_speaker_made"]
-        )
+        df["total_teleop_pieces_made"] = df.fillna(0)["teleop_amp"] + df.fillna(0)["teleop_speaker_made"]
 
-        df["total_teleop_pieces_miss"] = (
-            df.fillna(0)["zone1_shot_miss"] + df.fillna(0)["zone2_shot_miss"]
-        )
+        df["total_teleop_pieces_miss"] = df.fillna(0)["zone1_shot_miss"] + df.fillna(0)["zone2_shot_miss"]
 
-        df["total_teleop_pieces_attempted"] = (
-            df["total_teleop_pieces_made"] + df["total_teleop_pieces_miss"]
-        )
+        df["total_teleop_pieces_attempted"] = df["total_teleop_pieces_made"] + df["total_teleop_pieces_miss"]
         return self.__get_stats_summary(df, "total_teleop_pieces_made")
 
     def __get_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -188,30 +176,18 @@ class CrescendoPicklistAnalysis:
         df["comments"].fillna("", inplace=True)
         group = df.groupby("team_number")
         summary_df = pd.DataFrame(
-            [
-                group["comments"].aggregate(
-                    lambda x: " | ".join(x)
-                )  # pylint: disable=W0108
-            ]
+            [group["comments"].aggregate(lambda x: " | ".join(x))]  # pylint: disable=W0108
         ).T.reset_index()
         return summary_df
 
-    def get_picklist_summary(
-        self, auto_weight: int, teleop_weight: int, endgame_weight: int
-    ) -> pd.DataFrame:
+    def get_picklist_summary(self, auto_weight: int, teleop_weight: int, endgame_weight: int) -> pd.DataFrame:
         """Summarize the auto, telop, endgame, and comment data into the final picklist"""
         auto_picklist = pd.DataFrame(
             [
                 self.auto_df["team_number"],
                 (
-                    (
-                        self.auto_df[self.metric].rename(f"auto_norm_{self.metric}")
-                        - self.auto_df[self.metric].min()
-                    )
-                    / (
-                        self.auto_df[self.metric].max()
-                        - self.auto_df[self.metric].min()
-                    )
+                    (self.auto_df[self.metric].rename(f"auto_norm_{self.metric}") - self.auto_df[self.metric].min())
+                    / (self.auto_df[self.metric].max() - self.auto_df[self.metric].min())
                     * auto_weight
                 ),
                 self.auto_df["n"],
@@ -228,10 +204,7 @@ class CrescendoPicklistAnalysis:
                         self.teleop_df[self.metric].rename(f"teleop_norm_{self.metric}")
                         - self.teleop_df[self.metric].min()
                     )
-                    / (
-                        self.teleop_df[self.metric].max()
-                        - self.teleop_df[self.metric].min()
-                    )
+                    / (self.teleop_df[self.metric].max() - self.teleop_df[self.metric].min())
                     * teleop_weight
                 ),
             ]
@@ -242,15 +215,10 @@ class CrescendoPicklistAnalysis:
                 self.endgame_df["team_number"],
                 (
                     (
-                        self.endgame_df[self.metric].rename(
-                            f"endgame_norm_{self.metric}"
-                        )
+                        self.endgame_df[self.metric].rename(f"endgame_norm_{self.metric}")
                         - self.endgame_df[self.metric].min()
                     )
-                    / (
-                        self.endgame_df[self.metric].max()
-                        - self.endgame_df[self.metric].min()
-                    )
+                    / (self.endgame_df[self.metric].max() - self.endgame_df[self.metric].min())
                     * endgame_weight
                 ),
             ]
@@ -292,6 +260,16 @@ class CrescendoPicklistAnalysis:
 
         return picklist_df
 
-    #     picklist_df.to_csv('./data/picklist_summary.csv', index=False)
-    #     scouting_4607.save_to_google_drive(picklist_df, sheet_name)
-    #     #print(picklist_df)
+    def get_best_passers(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        passing_df = pd.DataFrame(
+            [
+                self.auto_df["team_number"],
+                self.auto_df["total_passes"],
+            ]
+        ).T
+        return passing_df
