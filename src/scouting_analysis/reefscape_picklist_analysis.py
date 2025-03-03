@@ -1,17 +1,18 @@
-""" The 2024 Crescendo Picklist Analysis Module
+""" The 2025 Reefscape Picklist Analysis Module
 """
 
 import pandas as pd
 
 
-class CrescendoPicklistAnalysis:
-    """Crescendo picklist analysis class"""
+class ReefscapePicklistAnalysis:
+    """Reefscape picklist analysis class"""
 
     def __init__(self, scouting_df: pd.DataFrame, metric: str):
         self.scouting_df = scouting_df
         self.metric = metric
         self.auto_df = self.__get_auto_team_summary(self.scouting_df)
-        self.teleop_df = self.__get_teleop_summary(self.scouting_df)
+        self.teleop_coral_df = self.__get_teleop_coral_summary(self.scouting_df)
+        self.teleop_algae_df = self.__get_teleop_algae_summary(self.scouting_df)
         self.endgame_df = self.__get_endgame_summary(self.scouting_df)
         self.comments_df = self.__get_comments_summary(self.scouting_df)
 
@@ -44,14 +45,12 @@ class CrescendoPicklistAnalysis:
 
         Columns                 Value
         ---------------------------------------------------------------------------
-        mobility                2 points
-        auto_amp                2 points
-        zone1_shot_made_auto    5 points
-        zone2_shot_made_auto    5 points
-        pre_load_score          Used to find a good 3rd robot
-        starting_pos            Used to find compatible partners
-        zone1_shot_miss_auto
-        zone2_shot_miss_auto
+        mobility                3 points
+        Level1                  3 points
+        Level2                  4 points
+        Level3                  6 points
+        Level4                  7 points
+        auto_algae              4 or 6 points...assume 4
 
         Args:
             df (pd.DataFrame): The scouting data
@@ -59,82 +58,69 @@ class CrescendoPicklistAnalysis:
         Returns:
             pd.DataFrame: The autonomous analysis teams summary
         """
-        df["mobility"] = df["mobility"].replace({True: 2, False: 0})
-        df["pre_load_score"] = df.fillna(0)["pre_load_score"].replace({True: 1, False: 0})
+        df["mobility"] = df["mobility"].replace({True: 3, False: 0})
 
         df["total_auto_points"] = (
             df.fillna(0)["mobility"]
-            + df.fillna(0)["auto_amp"] * 2
-            + df.fillna(0)["zone1_shot_made_auto"] * 5
-            + df.fillna(0)["zone2_shot_made_auto"] * 5
+            + df.fillna(0)["Level1"] * 3
+            + df.fillna(0)["Level2"] * 4
+            + df.fillna(0)["Level3"] * 6
+            + df.fillna(0)["Level4"] * 7
+            + df.fillna(0)["auto_algae"] * 4
         )
         teams_summary = self.__get_stats_summary(df, "total_auto_points")
-
-        teams_summary = pd.merge(
-            teams_summary,
-            pd.DataFrame(
-                (
-                    100
-                    * df.groupby("team_number")["pre_load_score"].sum()
-                    / df.groupby("team_number")["pre_load_score"].count()
-                ).rename("preload%")
-            ).reset_index(),
-            on="team_number",
-        )
-
-        teams_summary = pd.merge(
-            teams_summary,
-            pd.DataFrame((df.groupby("team_number")["pass_note"].sum()).rename("total_passes")).reset_index(),
-            on="team_number",
-        )
         return teams_summary
 
-    def __get_teleop_summary(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __get_teleop_coral_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         """Scouting data teleop analysis used for generating a picklist
-
-        Since the amp/speaker scoring changes depending on amplification, track the
-        number of game pieces instead of the point values.
 
         Columns                 Value
         ---------------------------------------------------------------------------
-        teleop_amp              1 game piece
-        zone1_shot_made         1 game piece
-        zone2_shot_made         1 game piece
-        zone3_shot_made         1 game piece
-        zone4_shot_made         1 game piece
-        zone1_shot_miss
-        zone2_shot_miss
-        zone3_shot_miss
-        zone4_shot_miss
-        # TODO: Amp miss?
+        tele_Level1             2 points
+        tele_Level2             3 points
+        tele_Level3             4 points
+        tele_Level4             5 points
+        tele_algae              4 or 6 points...assume 4
 
         Args:
             df (pd.DataFrame): The scouting data
 
         Returns:
             pd.DataFrame: The teleop analysis teams summary
+
         """
-        df["teleop_speaker_made"] = df.fillna(0)["zone1_shot_made"] + df.fillna(0)["zone2_shot_made"]
+        df["total_coral_points"] = (
+            df.fillna(0)["tele_Level1"] * 2
+            + df.fillna(0)["tele_Level2"] * 3
+            + df.fillna(0)["tele_Level3"] * 4
+            + df.fillna(0)["tele_Level4"] * 5
+        )
+        return self.__get_stats_summary(df, "total_coral_points")
 
-        df["total_teleop_pieces_made"] = df.fillna(0)["teleop_amp"] + df.fillna(0)["teleop_speaker_made"]
+    def __get_teleop_algae_summary(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Scouting data teleop analysis used for generating a picklist
 
-        df["total_teleop_pieces_miss"] = df.fillna(0)["zone1_shot_miss"] + df.fillna(0)["zone2_shot_miss"]
+        Columns                 Value
+        ---------------------------------------------------------------------------
+        robo_barge_score        4 points
+        processor_scored        2 points (assume other team scores 4)
 
-        df["total_teleop_pieces_attempted"] = df["total_teleop_pieces_made"] + df["total_teleop_pieces_miss"]
-        return self.__get_stats_summary(df, "total_teleop_pieces_made")
+        Args:
+            df (pd.DataFrame): The scouting data
+
+        Returns:
+            pd.DataFrame: The teleop analysis teams summary
+
+        """
+        df["total_algae_points"] = df.fillna(0)["robo_barge_score"] * 4 + df.fillna(0)["processor_scored"] * 2
+        return self.__get_stats_summary(df, "total_algae_points")
 
     def __get_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         """Scouting data endgame analysis used for generating a picklist
 
         Columns                 Value
         ---------------------------------------------------------------------------
-        trap_note_pos_amp       5 points
-        trap_note_pos_source    5 points
-        trap_note_pos_center    5 points
-        rob_onstage             3
-        parked                  1
-        harmony                 2
-        climb_fail
+        climb
 
         Args:
             df (pd.DataFrame): The scouting data
@@ -142,21 +128,8 @@ class CrescendoPicklistAnalysis:
         Returns:
             pd.DataFrame: The endgame analysis teams summary
         """
-        df["parked"].replace({True: 1, False: 0}, inplace=True)
-        df["harmony"].replace({True: 2, False: 0}, inplace=True)
-        df["rob_onstage"].replace({1: 3, 2: 3, 3: 3}, inplace=True)
-        df["trap_note_pos_amp"].replace({True: 5, False: 0}, inplace=True)
-        df["trap_note_pos_source"].replace({True: 5, False: 0}, inplace=True)
-        df["trap_note_pos_center"].replace({True: 5, False: 0}, inplace=True)
-        df["total_endgame_points"] = (
-            df.fillna(0)["parked"]
-            + df.fillna(0)["harmony"]
-            + df.fillna(0)["rob_onstage"]
-            + df.fillna(0)["trap_note_pos_amp"]
-            + df.fillna(0)["trap_note_pos_source"]
-            + df.fillna(0)["trap_note_pos_center"]
-        )
-
+        df["climb"].replace({0: 6, 1: 12, 2: 2, 3: 0}, inplace=True)
+        df["total_endgame_points"] = df.fillna(0)["climb"]
         return self.__get_stats_summary(df, "total_endgame_points")
 
     def __get_comments_summary(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -180,7 +153,9 @@ class CrescendoPicklistAnalysis:
         ).T.reset_index()
         return summary_df
 
-    def get_picklist_summary(self, auto_weight: int, teleop_weight: int, endgame_weight: int) -> pd.DataFrame:
+    def get_picklist_summary(
+        self, auto_weight: int, coral_weight: int, algae_weight: int, endgame_weight: int
+    ) -> pd.DataFrame:
         """Summarize the auto, telop, endgame, and comment data into the final picklist"""
         auto_picklist = pd.DataFrame(
             [
@@ -191,21 +166,33 @@ class CrescendoPicklistAnalysis:
                     * auto_weight
                 ),
                 self.auto_df["n"],
-                self.auto_df["total_passes"],
-                self.auto_df["preload%"],
             ]
         ).T
 
-        teleop_picklist = pd.DataFrame(
+        teleop_coral_picklist = pd.DataFrame(
             [
-                self.teleop_df["team_number"],
+                self.teleop_coral_df["team_number"],
                 (
                     (
-                        self.teleop_df[self.metric].rename(f"teleop_norm_{self.metric}")
-                        - self.teleop_df[self.metric].min()
+                        self.teleop_coral_df[self.metric].rename(f"teleop_coral_norm_{self.metric}")
+                        - self.teleop_coral_df[self.metric].min()
                     )
-                    / (self.teleop_df[self.metric].max() - self.teleop_df[self.metric].min())
-                    * teleop_weight
+                    / (self.teleop_coral_df[self.metric].max() - self.teleop_coral_df[self.metric].min())
+                    * coral_weight
+                ),
+            ]
+        ).T
+
+        teleop_algae_picklist = pd.DataFrame(
+            [
+                self.teleop_algae_df["team_number"],
+                (
+                    (
+                        self.teleop_algae_df[self.metric].rename(f"teleop_algae_norm_{self.metric}")
+                        - self.teleop_algae_df[self.metric].min()
+                    )
+                    / (self.teleop_algae_df[self.metric].max() - self.teleop_algae_df[self.metric].min())
+                    * algae_weight
                 ),
             ]
         ).T
@@ -231,18 +218,18 @@ class CrescendoPicklistAnalysis:
             ]
         ).T
 
-        picklist_df = pd.merge(auto_picklist, teleop_picklist, on="team_number")
+        picklist_df = pd.merge(auto_picklist, teleop_coral_picklist, on="team_number")
+        picklist_df = pd.merge(picklist_df, teleop_algae_picklist, on="team_number")
         picklist_df = pd.merge(picklist_df, endgame_picklist, on="team_number")
         picklist_df = pd.merge(picklist_df, comments_picklist, on="team_number")
         picklist_df = picklist_df[
             [
                 "team_number",
                 f"auto_norm_{self.metric}",
-                f"teleop_norm_{self.metric}",
+                f"teleop_coral_norm_{self.metric}",
+                f"teleop_algae_norm_{self.metric}",
                 f"endgame_norm_{self.metric}",
                 "n",
-                "preload%",
-                "total_passes",
                 "comments",
             ]
         ]
@@ -252,24 +239,11 @@ class CrescendoPicklistAnalysis:
 
         picklist_score = (
             picklist_df[f"auto_norm_{self.metric}"]
-            + picklist_df[f"teleop_norm_{self.metric}"]
+            + picklist_df[f"teleop_coral_norm_{self.metric}"]
+            + picklist_df[f"teleop_algae_norm_{self.metric}"]
             + picklist_df[f"endgame_norm_{self.metric}"]
         )
         picklist_df.insert(1, "picklist_score", picklist_score)
         picklist_df.sort_values("picklist_score", inplace=True, ascending=False)
 
         return picklist_df
-
-    def get_best_passers(self):
-        """_summary_
-
-        Returns:
-            _type_: _description_
-        """
-        passing_df = pd.DataFrame(
-            [
-                self.auto_df["team_number"].astype(int),
-                self.auto_df["total_passes"].astype(int),
-            ]
-        ).T.sort_values(by="total_passes", ascending=False)
-        return passing_df
