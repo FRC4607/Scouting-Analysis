@@ -65,18 +65,20 @@ class SDB:
                             )
                             line_continuation = line.strip()
 
-                        # Assume the extra commas are in the comments
+                        # Assume the extra commas are in the "comments"
                         else:
                             print(
                                 f"Non-conforming CSV (extra commas): line={line_num},\
                                   num_col={num_cols}, exp_num_cols={exp_num_cols}"
                             )
+                            comments_idx = 11
                             while num_cols != exp_num_cols:
-                                split_line[-3] += split_line[-2]
-                                split_line.pop(-2)
+                                s = "-".join([split_line[comments_idx], split_line[comments_idx + 1]])
+                                split_line[comments_idx] = s
+                                split_line.pop(comments_idx + 1)
                                 num_cols = len(split_line)
-                                s = ",".join(split_line)
                                 print(f"  Comments concatenated: {s}\n")
+                            db.append(split_line)
 
         # Save the cleaned up scouting database
         df = pd.DataFrame(db[1:], columns=db[0])
@@ -112,3 +114,8 @@ class SDB:
         """
         df = self.get_full_scouting_database(force)
         return df[df["event_key"] == event_key].drop("id", axis=1).drop_duplicates()
+
+
+if __name__ == "__main__":
+    sdb = SDB()
+    sdb.get_full_scouting_database(force=True)

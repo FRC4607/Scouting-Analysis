@@ -13,4 +13,4 @@ This python project provides the tools necessary to analyze 4607's scouting data
 7. Open a CMD shell in VS Code and run the following:
     - setup
     - cd "to your working directory"
-    - python -m scouting_analysis.picklist_runner --event_key 2024new
+    - python -m scouting_analysis.picklist_runner --event_key 2025mndu --weights 30 30 10 30 --save
