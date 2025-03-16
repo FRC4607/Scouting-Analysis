@@ -13,7 +13,7 @@ class GD:
     """Class to handle Google Drive spreadsheets"""
 
     def __init__(self, workspace: str):
-        client = pygsheets.authorize(service_file=workspace + GOOGLE_SERVICE_FILE)
+        client = pygsheets.authorize(service_file=workspace + "\\" + GOOGLE_SERVICE_FILE)
         client.drive.enable_team_drive(GOOGLE_SHARED_DRIVE_ID)
         self.ss = client.open(GOOGLE_PICKLIST_SUMMARY)
 
