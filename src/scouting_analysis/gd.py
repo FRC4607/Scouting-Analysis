@@ -1,5 +1,4 @@
-""" The 4607 Google Drive Module
-"""
+"""The 4607 Google Drive Module"""
 
 import pandas as pd
 import pygsheets

@@ -1,5 +1,4 @@
-""" The 4607 Scouting Database Module
-"""
+"""The 4607 Scouting Database Module"""
 
 from pathlib import Path
 import pandas as pd

@@ -1,5 +1,4 @@
-""" Constants Module
-"""
+"""Constants Module"""
 
 TBA_BASE = "https://www.thebluealliance.com/api/v3"
 SCOUTING_DATABASE_URL = "https://api2.lanzersys.com/scouting/raw/matches"

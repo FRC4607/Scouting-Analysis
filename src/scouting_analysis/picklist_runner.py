@@ -1,5 +1,4 @@
-""" The Picklist Analysis Runner
-"""
+"""The Picklist Analysis Runner"""
 
 from argparse import ArgumentParser
 from os import environ

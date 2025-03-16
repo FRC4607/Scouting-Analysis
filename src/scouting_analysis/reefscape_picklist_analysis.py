@@ -1,5 +1,4 @@
-""" The 2025 Reefscape Picklist Analysis Module
-"""
+"""The 2025 Reefscape Picklist Analysis Module"""
 
 import yaml  # pylint: disable=E0401
 import pandas as pd
@@ -61,10 +60,10 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         Returns:
             pd.DataFrame: The autonomous analysis teams summary
         """
-        df["mobility"] = df["mobility"].replace({True: 3, False: 0})
+        df["mobility_score"] = df["mobility"].apply(lambda x: 3 if x else 0)
 
         df["total_auto_points"] = (
-            df.fillna(0)["mobility"]
+            df.fillna(0)["mobility_score"]
             + df.fillna(0)["Level1"] * 3
             + df.fillna(0)["Level2"] * 4
             + df.fillna(0)["Level3"] * 6
@@ -131,10 +130,6 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
     #     Returns:
     #         pd.DataFrame: The endgame analysis teams summary
     #     """
-    #     df["climb"].replace({0: 6, 1: 12, 2: 2, 3: 0}, inplace=True)
-    #     df["total_endgame_points"] = df.fillna(0)["climb"]
-    #     return self.__get_stats_summary(df, "total_endgame_points")
-
     def __get_tba_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         data = {}
         for _, row in df.iterrows():
@@ -158,8 +153,11 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
             for val in vals:
                 d.append([team, val])
         endgame_df = pd.DataFrame(d, columns=["team_number", "climb"])
-        endgame_df["climb"].replace({"DeepCage": 12, "ShallowCage": 6, "Parked": 2, "None": 0}, inplace=True)
-        return self.__get_stats_summary(endgame_df, "climb")
+
+        endgame_df["climb_score"] = endgame_df["climb"].apply(
+            lambda x: 12 if x == "DeepCage" else 6 if x == "ShallowCage" else 2 if x == "Parked" else 0
+        )
+        return self.__get_stats_summary(endgame_df, "climb_score")
 
     def __get_breakdown_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         """Scouting data endgame analysis used for generating a picklist
@@ -174,7 +172,7 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         Returns:
             pd.DataFrame: The breakdown analysis teams summary
         """
-        df["breakdown"] = df.fillna(0)["breakdown"].replace({True: 1})
+        df["breakdown"] = df.fillna(0)["breakdown"].apply(lambda x: 1 if x else 0)
         group = df.groupby("team_number")["breakdown"]
         breakdown_summary_df = pd.DataFrame(
             [
@@ -197,7 +195,7 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         Returns:
             pd.DataFrame: The comments teams summary
         """
-        df["comments"].fillna("", inplace=True)
+        df["comments"] = df["comments"].fillna("")
         group = df.groupby("team_number")
         summary_df = pd.DataFrame(
             [group["comments"].aggregate(lambda x: " | ".join(x))]  # pylint: disable=W0108

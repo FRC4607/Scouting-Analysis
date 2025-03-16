@@ -1,5 +1,4 @@
-""" The Blue Alliance API Module
-"""
+"""The Blue Alliance API Module"""
 
 from io import StringIO
 from pathlib import Path

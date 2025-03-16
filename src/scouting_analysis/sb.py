@@ -1,5 +1,5 @@
-""" The Statbotics API Module
-    TODO: This module isn't complete. Just got something going for state 2024.
+"""The Statbotics API Module
+TODO: This module isn't complete. Just got something going for state 2024.
 """
 
 import statbotics
