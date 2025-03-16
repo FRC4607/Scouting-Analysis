@@ -5,7 +5,7 @@ line-length = 120
 disable = "line-too-long"
 
 [tool.pylint.'FORMAT']
-expected-line-ending-format = "CRLF"
+expected-line-ending-format = "LF"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scouting_analysis"]
