@@ -30,7 +30,7 @@ if __name__ == "__main__":
     scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
     # Run the analysis
-    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary(
+    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary2(
         *args.weights
     )
 
