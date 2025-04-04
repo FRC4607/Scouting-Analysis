@@ -26,13 +26,14 @@ if __name__ == "__main__":
     # Get the scouting data for the event
     teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key)
     match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key)
-    sdb_event_df = SDB().get_event_scouting_data(args.event_key)
+    sdb_event_df = SDB().get_event_scouting_data(args.event_key, force=True)
     scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
     # Run the analysis
-    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary2(
-        *args.weights
-    )
+    # picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary(
+    #     *args.weights
+    # )
+    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary2()
 
     # Update the Google Drive picklist SS
     if args.save:
