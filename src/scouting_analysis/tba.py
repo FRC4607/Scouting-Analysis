@@ -33,6 +33,10 @@ class TBA:
         url = TBA_BASE + "/event/" + event_key + "/matches"
         return self.__make_request(url)
 
+    def __request_event_matches_data(self, event_key: str) -> pd.DataFrame:
+        url = TBA_BASE + "/team/frc4607/event/" + event_key + "/matches/simple"
+        return self.__make_request(url)
+
     def get_event_team_list(self, event_key: str, force: bool = False) -> pd.DataFrame:
         """Get team list for an event
 
@@ -82,4 +86,21 @@ class TBA:
             if Path(filename).is_file():
                 return pd.read_csv(filename)
         self.__request_event_match_breakdown_data(event_key).to_csv(filename, index=False)  # pylint: disable=E1101
+        return pd.read_csv(filename)
+
+    def get_event_matches(self, event_key: str, force: bool = False) -> pd.DataFrame:
+        """Get match schedule
+
+        Args:
+            event_key (str): The event key - see https://frc-events.firstinspires.org/2024/Events/EventList
+            force (bool, optional): Skip cached data and force a refresh. Defaults to False.
+
+        Returns:
+            pd.DataFrame: The list of teams registered for the event
+        """
+        filename = f"match_breakdowns_{event_key}.csv"
+        if not force:
+            if Path(filename).is_file():
+                return pd.read_csv(filename)
+        self.__request_event_matches_data(event_key).to_csv(filename, index=False)  # pylint: disable=E1101
         return pd.read_csv(filename)

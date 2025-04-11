@@ -24,8 +24,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get the scouting data for the event
-    teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key)
-    match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key)
+    teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key, force=False)
+    match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key, force=False)
     sdb_event_df = SDB().get_event_scouting_data(args.event_key, force=True)
     scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
