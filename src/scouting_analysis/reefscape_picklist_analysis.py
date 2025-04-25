@@ -10,11 +10,13 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
     def __init__(self, scouting_df: pd.DataFrame, metric: str, match_breakdowns_df: pd.DataFrame):
         self.scouting_df = scouting_df
         self.metric = metric
-        self.match_breakdowns_df = match_breakdowns_df
         self.auto_df = self.__get_auto_team_summary(self.scouting_df)
         self.teleop_coral_df = self.__get_teleop_coral_summary(self.scouting_df)
         self.teleop_algae_df = self.__get_teleop_algae_summary(self.scouting_df)
-        self.endgame_df = self.__get_tba_endgame_summary(self.match_breakdowns_df)
+        if not match_breakdowns_df.empty:
+            self.endgame_df = self.__get_tba_endgame_summary(match_breakdowns_df)
+        else:
+            self.endgame_df = self.__get_sdb_endgame_summary(self.scouting_df)
         self.comments_df = self.__get_comments_summary(self.scouting_df)
         self.breakdown_df = self.__get_breakdown_summary(self.scouting_df)
 
@@ -117,19 +119,23 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         df["total_algae_points"] = df.fillna(0)["robo_barge_score"] * 4 + df.fillna(0)["processor_scored"] * 2
         return self.__get_stats_summary(df, "total_algae_points")
 
-    # def __get_sdb_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     """Scouting data endgame analysis used for generating a picklist
+    def __get_sdb_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Scouting data endgame analysis used for generating a picklist
 
-    #     Columns                 Value
-    #     ---------------------------------------------------------------------------
-    #     climb
+        Columns                 Value
+        ---------------------------------------------------------------------------
+        climb
 
-    #     Args:
-    #         df (pd.DataFrame): The scouting data
+        Args:
+            df (pd.DataFrame): The scouting data
 
-    #     Returns:
-    #         pd.DataFrame: The endgame analysis teams summary
-    #     """
+        Returns:
+            pd.DataFrame: The endgame analysis teams summary
+        """
+        df["climb"].replace({0: 6, 1: 12, 2: 2, 3: 0}, inplace=True)
+        df["total_endgame_points"] = df.fillna(0)["climb"]
+        return self.__get_stats_summary(df, "total_endgame_points")
+
     def __get_tba_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         data = {}
         for _, row in df.iterrows():
@@ -202,122 +208,7 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         ).T.reset_index()
         return summary_df
 
-    def get_picklist_summary(
-        self, auto_weight: int, coral_weight: int, algae_weight: int, endgame_weight: int
-    ) -> pd.DataFrame:
-        """Summarize the auto, telop, endgame, and comment data into the final picklist"""
-        auto_picklist = pd.DataFrame(
-            [
-                self.auto_df["team_number"],
-                (
-                    (self.auto_df[self.metric].rename(f"auto_norm_{self.metric}") - self.auto_df[self.metric].min())
-                    / (self.auto_df[self.metric].max() - self.auto_df[self.metric].min())
-                    * auto_weight
-                ),
-                self.auto_df["n"],
-            ]
-        ).T
-
-        teleop_coral_picklist = pd.DataFrame(
-            [
-                self.teleop_coral_df["team_number"],
-                (
-                    (
-                        self.teleop_coral_df[self.metric].rename(f"teleop_coral_norm_{self.metric}")
-                        - self.teleop_coral_df[self.metric].min()
-                    )
-                    / (self.teleop_coral_df[self.metric].max() - self.teleop_coral_df[self.metric].min())
-                    * coral_weight
-                ),
-            ]
-        ).T
-
-        teleop_algae_picklist = pd.DataFrame(
-            [
-                self.teleop_algae_df["team_number"],
-                (
-                    (
-                        self.teleop_algae_df[self.metric].rename(f"teleop_algae_norm_{self.metric}")
-                        - self.teleop_algae_df[self.metric].min()
-                    )
-                    / (self.teleop_algae_df[self.metric].max() - self.teleop_algae_df[self.metric].min())
-                    * algae_weight
-                ),
-            ]
-        ).T
-
-        endgame_picklist = pd.DataFrame(
-            [
-                self.endgame_df["team_number"],
-                (
-                    (
-                        self.endgame_df[self.metric].rename(f"endgame_norm_{self.metric}")
-                        - self.endgame_df[self.metric].min()
-                    )
-                    / (self.endgame_df[self.metric].max() - self.endgame_df[self.metric].min())
-                    * endgame_weight
-                ),
-            ]
-        ).T
-
-        breakdown_picklist = pd.DataFrame(
-            [
-                self.breakdown_df["team_number"],
-                self.breakdown_df["breakdown"],
-            ]
-        ).T
-
-        comments_picklist = pd.DataFrame(
-            [
-                self.comments_df["team_number"],
-                self.comments_df["comments"],
-            ]
-        ).T
-
-        picklist_df = pd.merge(auto_picklist, teleop_coral_picklist, on="team_number")
-        picklist_df = pd.merge(picklist_df, teleop_algae_picklist, on="team_number")
-        picklist_df = pd.merge(picklist_df, endgame_picklist, on="team_number")
-        picklist_df = pd.merge(picklist_df, breakdown_picklist, on="team_number")
-        picklist_df = pd.merge(picklist_df, comments_picklist, on="team_number")
-        picklist_df = picklist_df[
-            [
-                "team_number",
-                f"auto_norm_{self.metric}",
-                f"teleop_coral_norm_{self.metric}",
-                f"teleop_algae_norm_{self.metric}",
-                f"endgame_norm_{self.metric}",
-                "n",
-                "breakdown",
-                "comments",
-            ]
-        ]
-
-        picklist_df["team_number"] = picklist_df["team_number"].astype(int)
-        picklist_df["n"] = picklist_df["n"].astype(int)
-
-        picklist_score = (
-            picklist_df[f"auto_norm_{self.metric}"]
-            + picklist_df[f"teleop_coral_norm_{self.metric}"]
-            + picklist_df[f"teleop_algae_norm_{self.metric}"]
-            + picklist_df[f"endgame_norm_{self.metric}"]
-        )
-        picklist_df.insert(1, "score", picklist_score)
-        picklist_df.sort_values("score", inplace=True, ascending=False)
-
-        picklist_df.rename(
-            columns={
-                "team_number": "team",
-                f"auto_norm_{self.metric}": "auto",
-                f"teleop_coral_norm_{self.metric}": "teleop coral",
-                f"teleop_algae_norm_{self.metric}": "teleop algae",
-                f"endgame_norm_{self.metric}": "endgame",
-            },
-            inplace=True,
-        )
-
-        return picklist_df
-
-    def get_picklist_summary2(self) -> pd.DataFrame:
+    def get_picklist_summary(self) -> pd.DataFrame:
         """Summarize the auto, telop, endgame, and comment data into the final picklist"""
         auto_picklist = pd.DataFrame(
             [

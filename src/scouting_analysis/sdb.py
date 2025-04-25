@@ -13,7 +13,7 @@ class SDB:
         self.url = SCOUTING_DATABASE_URL
         self.filename = SCOUTING_DATABASE_FILENAME
 
-    def __get_scouting_data_from_server(self):
+    def __get_scouting_data_from_server(self, debug: bool = False):  # pylint: disable=R0914
         # Get data from the server
         resp = requests.Session().get(url=self.url)
 
@@ -30,7 +30,7 @@ class SDB:
             line_continuation = ""
 
             # Process each line
-            for line in f.readlines():
+            for line in f.readlines():  # pylint: disable=R1702
                 line_num += 1
                 split_line = line.strip().split(",")
                 num_cols = len(split_line)
@@ -52,36 +52,51 @@ class SDB:
                         line_continuation += line.strip()
                         split_line_continuation = line_continuation.split(",")
                         if len(split_line_continuation) == exp_num_cols:
-                            print(f"  Continued line: {line_continuation}\n")
+                            if debug:
+                                print(f"  Continued line: {line_continuation}\n")
                             db.append(split_line_continuation)
                             line_continuation = ""
                     else:
                         # Assume lines are continued onto the next line when there aren't enough columns
                         if num_cols < exp_num_cols:
-                            print(
-                                f"Non-conforming CSV (continuation): line={line_num},\
-                                  num_col={num_cols}, exp_num_cols={exp_num_cols}"
-                            )
+                            if debug:
+                                print(
+                                    f"Non-conforming CSV (continuation): line={line_num},\
+                                    num_col={num_cols}, exp_num_cols={exp_num_cols}"
+                                )
                             line_continuation = line.strip()
 
                         # Assume the extra commas are in the "comments"
                         else:
-                            print(
-                                f"Non-conforming CSV (extra commas): line={line_num},\
-                                  num_col={num_cols}, exp_num_cols={exp_num_cols}"
-                            )
+                            if debug:
+                                print(
+                                    f"Non-conforming CSV (extra commas): line={line_num},\
+                                    num_col={num_cols}, exp_num_cols={exp_num_cols}"
+                                )
                             comments_idx = 11
                             while num_cols != exp_num_cols:
                                 s = "-".join([split_line[comments_idx], split_line[comments_idx + 1]])
                                 split_line[comments_idx] = s
                                 split_line.pop(comments_idx + 1)
                                 num_cols = len(split_line)
-                                print(f"  Comments concatenated: {s}\n")
+                                if debug:
+                                    print(f"  Comments concatenated: {s}\n")
                             db.append(split_line)
 
         # Save the cleaned up scouting database
         df = pd.DataFrame(db[1:], columns=db[0])
+        # Convert date from: "Sat Mar 22 2025 10:40:31 GMT-0500 (Central Daylight Time)"
+        # to: "%Y-%b-%d %H:%M:%s" - "2025-Mar-22 10:40:31"
+        df["ScoutedTime"] = df["ScoutedTime"].apply(self.__convert_datetime)
         df.to_csv(self.filename, index=False)
+
+    def __convert_datetime(self, in_datetime: str):
+        splitline = in_datetime.split()
+        if len(splitline) != 9:
+            print(f"Unknown datetime: {splitline}")
+            return in_datetime
+        out_datetime = splitline[3] + "-" + splitline[1] + "-" + splitline[2] + " " + splitline[4]
+        return out_datetime
 
     def get_full_scouting_database(self, force: bool = False) -> pd.DataFrame:
         """Get the whole 4607 scouting database
@@ -113,6 +128,22 @@ class SDB:
         """
         df = self.get_full_scouting_database(force)
         return df[df["event_key"] == event_key].drop("id", axis=1).drop_duplicates()
+
+    def get_teams_scouting_data(self, teams: list, force: bool = False) -> pd.DataFrame:
+        """Get the 4607 scouting data for th given list of teams
+
+        This function will filter out all of the rows for the list of teams. The unique
+        row ID is removed and the duplicate rows are dropped.
+
+        Args:
+            teams (list): List of teams
+            force (bool, optional): Skip cached data and force a refresh. Defaults to False.
+
+        Returns:
+            pd.DataFrame: 4607's scouting database
+        """
+        df = self.get_full_scouting_database(force)
+        return df[df["team_number"].isin(teams)].drop("id", axis=1).drop_duplicates()
 
 
 if __name__ == "__main__":

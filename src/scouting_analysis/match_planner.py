@@ -19,14 +19,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get the scouting data for the event
-    teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key, force=False)
-    match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key, force=False)
-    matches_df = TBA(environ["X-TBA-Auth-Key"]).get_event_matches(args.event_key, force=False)
+    teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key, force=True)
+    # match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key, force=False)
+    matches_df = TBA(environ["X-TBA-Auth-Key"]).get_event_matches(args.event_key, force=True)
     sdb_event_df = SDB().get_event_scouting_data(args.event_key, force=True)
     scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
     # Compile the data
+    match_breakdowns_df = pd.DataFrame()
     RPA = ReefscapePicklistAnalysis(scouting_df, "mean", match_breakdowns_df)
+    # RPA = ReefscapePicklistAnalysis(scouting_df, "mean")
 
     # Get the scouting data for the matches
     matches = {}

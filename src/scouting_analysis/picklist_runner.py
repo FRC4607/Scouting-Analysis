@@ -14,26 +14,30 @@ if __name__ == "__main__":
     load_dotenv()
 
     parser = ArgumentParser()
-    parser.add_argument("--event_key", required=True, type=str, help="The FIRST FRC event key")
-    parser.add_argument(
-        "--weights", required=False, type=int, nargs="+", help="auto/coral/algae/endgame weights, should sum to 100"
-    )
+    parser.add_argument("--event_key", required=True, type=str, help="The FIRST FRC event key used to get teams list")
     parser.add_argument("--metric", required=False, type=str, help="metric for analysis (mean or median)")
+    parser.add_argument("--use_tba", required=False, action="store_true", help="use TBA data for endgame")
     parser.add_argument("--save", required=False, action="store_true", help="save picklist to Google Drive sheet")
-    parser.set_defaults(weights=[30, 25, 5, 30], metric="mean")
+    parser.add_argument("--teams", required=False, type=int, nargs="+", help="list of teams to analyze")
+    parser.set_defaults(metric="mean")
     args = parser.parse_args()
 
-    # Get the scouting data for the event
-    teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key, force=False)
-    match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key, force=False)
-    sdb_event_df = SDB().get_event_scouting_data(args.event_key, force=True)
-    scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
+    # Get the scouting data for the event or given list of teams
+    if args.teams:
+        sdb_event_df = SDB().get_teams_scouting_data(args.teams, force=False)
+        sdb_event_df["ScoutedTime"] = pd.to_datetime(sdb_event_df["ScoutedTime"])
+        scouting_df = sdb_event_df[sdb_event_df["ScoutedTime"] > pd.to_datetime("2025-04-15")]
+
+    else:
+        sdb_event_df = SDB().get_event_scouting_data(args.event_key, force=False)
+        teams_df = TBA(environ["X-TBA-Auth-Key"]).get_event_team_list(args.event_key, force=False)
+        scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
     # Run the analysis
-    # picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary(
-    #     *args.weights
-    # )
-    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary2()
+    match_breakdowns_df = pd.DataFrame()
+    if args.use_tba:
+        match_breakdowns_df = TBA(environ["X-TBA-Auth-Key"]).get_event_match_breakdowns(args.event_key, force=False)
+    picklist_df = ReefscapePicklistAnalysis(scouting_df, args.metric, match_breakdowns_df).get_picklist_summary()
 
     # Update the Google Drive picklist SS
     if args.save:
