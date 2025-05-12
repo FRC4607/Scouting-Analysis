@@ -132,9 +132,13 @@ class ReefscapePicklistAnalysis:  # pylint: disable=R0903,R0902
         Returns:
             pd.DataFrame: The endgame analysis teams summary
         """
-        df["climb"].replace({0: 6, 1: 12, 2: 2, 3: 0}, inplace=True)
+        df["decoded_climb"] = df["climb"].replace({0: 6, 1: 12, 2: 2, 3: 0})
         df["total_endgame_points"] = df.fillna(0)["climb"]
-        return self.__get_stats_summary(df, "total_endgame_points")
+        endgame_df = df[["team_number", "climb"]].copy()
+        endgame_df["climb_score"] = endgame_df["climb"].apply(
+            lambda x: 12 if x == 1 else 6 if x == 0 else 2 if x == 2 else 0
+        )
+        return self.__get_stats_summary(endgame_df, "climb_score")
 
     def __get_tba_endgame_summary(self, df: pd.DataFrame) -> pd.DataFrame:
         data = {}
