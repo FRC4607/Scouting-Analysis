@@ -12,7 +12,8 @@ from .gd import GD
 from .sdb import SDB
 from .tba import TBA
 
-if __name__ == "__main__":
+
+def main():
     load_dotenv()
 
     parser = ArgumentParser(description="Run the 2026 FRC picklist analysis.")
@@ -106,3 +107,7 @@ if __name__ == "__main__":
         gd.save_match_planning_to_google_drive(planner_df, args.event_key)
         gd.save_picklist_to_google_drive(picklist_df, args.event_key)
         picklist_df.to_csv("picklist_summary.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()

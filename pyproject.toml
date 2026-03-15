@@ -1,6 +1,3 @@
-[tool.black]
-line-length = 120
-
 [tool.ruff]
 line-length = 120
 
@@ -9,6 +6,9 @@ select = ["E", "F", "W", "I"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scouting_analysis"]
+
+[project.scripts]
+run_picklist = "scouting_analysis.frc2026_picklist_runner:main"
 
 [build-system]
 requires = ["hatchling"]
