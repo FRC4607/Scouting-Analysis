@@ -1,11 +1,11 @@
 [tool.black]
 line-length = 120
 
-[tool.pylint.'MESSAGES CONTROL']
-disable = "line-too-long"
+[tool.ruff]
+line-length = 120
 
-[tool.pylint.'FORMAT']
-expected-line-ending-format = "LF"
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scouting_analysis"]

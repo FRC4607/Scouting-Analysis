@@ -1,6 +1,5 @@
 black
-flake8
-pylint
+ruff
 pre-commit
 requests
 pandas

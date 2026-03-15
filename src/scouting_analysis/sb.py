@@ -4,7 +4,6 @@ TODO: This module isn't complete. Just got something going for state 2024.
 
 import statbotics
 
-
 AUTO = "auto_epa_end"
 TELEOP = "teleop_epa_end"
 END = "endgame_epa_end"
