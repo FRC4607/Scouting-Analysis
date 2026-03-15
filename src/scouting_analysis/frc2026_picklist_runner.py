@@ -9,6 +9,7 @@ from dotenv import load_dotenv  # type: ignore
 
 from .frc2026_picklist_analysis import FRC2026PicklistAnalysis
 from .gd import GD
+from .sb import SB
 from .sdb import SDB
 from .tba import TBA
 
@@ -25,9 +26,10 @@ def main():
 
     tba = TBA(environ["X-TBA-Auth-Key"])
     sdb = SDB()
+    sb = SB()
 
     # ------------------------------------------------------------------ #
-    # Scouting data                                                      #
+    # Scouting data                                                        #
     # ------------------------------------------------------------------ #
     if args.teams:
         scouting_df = sdb.get_teams_scouting_data(args.teams, force=True)
@@ -39,19 +41,24 @@ def main():
         scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
     # ------------------------------------------------------------------ #
-    # TBA match breakdowns and insights                                  #
+    # TBA match breakdowns and COPRs                                       #
     # ------------------------------------------------------------------ #
     match_breakdowns_df = tba.get_event_match_breakdowns(args.event_key, force=True)
     coprs_df = tba.get_event_coprs(args.event_key, force=True)
 
     # ------------------------------------------------------------------ #
-    # Picklist analysis                                                  #
+    # Statbotics EPA data                                                  #
     # ------------------------------------------------------------------ #
-    rpa = FRC2026PicklistAnalysis(scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df)
+    epa_df = sb.get_event_team_stats(args.event_key, force=True)
+
+    # ------------------------------------------------------------------ #
+    # Picklist analysis                                                    #
+    # ------------------------------------------------------------------ #
+    rpa = FRC2026PicklistAnalysis(scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df, epa_df)
     picklist_df = rpa.get_picklist_summary()
 
     # ------------------------------------------------------------------ #
-    # Match planner                                                      #
+    # Match planner                                                        #
     # ------------------------------------------------------------------ #
     matches_df = tba.get_event_matches(args.event_key, force=True)
 
@@ -65,11 +72,8 @@ def main():
             alliances["red"]["team_keys"],
         ]
 
-    stages = ["auto", "teleop"]
-    stage_dfs = [rpa.auto_df, rpa.teleop_df]
-    if rpa.climb_df is not None:
-        stages.append("climb")
-        stage_dfs.append(rpa.climb_df)
+    stages = ["auto", "teleop", "endgame"]
+    stage_dfs = [rpa.auto_df, rpa.teleop_df, rpa.endgame_df]
 
     planner_df = pd.DataFrame()
     for match, (blue_teams, red_teams) in sorted(matches.items()):

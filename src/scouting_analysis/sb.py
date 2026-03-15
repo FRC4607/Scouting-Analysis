@@ -1,64 +1,84 @@
-"""The Statbotics API Module
-TODO: This module isn't complete. Just got something going for state 2024.
-"""
+"""The Statbotics API Module"""
 
-import statbotics
+import logging
+from pathlib import Path
 
-AUTO = "auto_epa_end"
-TELEOP = "teleop_epa_end"
-END = "endgame_epa_end"
+import pandas as pd
+import requests
 
-
-sb = statbotics.Statbotics()
-team_epa = {}
-match_schedule = [
-    ([2129, 3630, 4607], [3102, 5232, 4728]),
-    ([4728, 2977, 4607], [7257, 3018, 5348]),
-    ([5348, 6045, 4607], [5172, 2531, 2491]),
-    ([2530, 4230, 4607], [2470, 9576, 6147]),
-    ([2531, 1816, 4607], [3630, 9576, 2530]),
-    ([7257, 3102, 4607], [2823, 9745, 2530]),
-    ([4239, 3277, 4607], [2129, 9745, 4539]),
-    ([4539, 3184, 4607], [6045, 5434, 2531]),
-]
+logger = logging.getLogger(__name__)
 
 
-def update_team_epa(teams: list):
-    """_summary_
+class SB:
+    """Class to handle Statbotics data requests."""
 
-    Args:
-        teams (list): _description_
-    """
-    for team in teams:
-        if team not in team_epa:
-            team_epa[team] = sb.get_team_year(team, 2024, [AUTO, TELEOP, END])
+    def __init__(self) -> None:
+        self._session = requests.Session()
+
+    # ------------------------------------------------------------------ #
+    # Public API                                                           #
+    # ------------------------------------------------------------------ #
+
+    def get_event_team_stats(self, event_key: str, force: bool = False) -> pd.DataFrame:
+        """Get Statbotics EPA stats for all teams at an event.
+
+        Args:
+            event_key (str): The FIRST FRC event key (e.g. '2026ndgf').
+            force (bool): Skip cached data and force a refresh. Defaults to False.
+
+        Returns:
+            pd.DataFrame: EPA stats for each team at the event, with columns:
+                team_number, auto_epa, teleop_epa, endgame_epa, total_epa.
+
+        Raises:
+            requests.HTTPError: If the API returns a non-2xx response.
+        """
+        filename = f"sb_event_{event_key}.csv"
+        if not force and Path(filename).is_file():
+            logger.debug("Loading cached Statbotics data from '%s'.", filename)
+            return pd.read_csv(filename)
+
+        try:
+            resp = self._session.get(f"https://api.statbotics.io/v3/team_events?event={event_key}&limit=100")
+            resp.raise_for_status()
+            data = resp.json()
+        except requests.HTTPError as e:
+            logger.error("HTTP error fetching Statbotics data for event '%s': %s", event_key, e)
+            raise
+        except Exception as e:
+            logger.error("Failed to fetch Statbotics data for event '%s': %s", event_key, e)
+            return pd.DataFrame()
+
+        if not data:
+            logger.warning("No Statbotics data found for event '%s'.", event_key)
+            return pd.DataFrame()
+
+        records = []
+        for entry in data:
+            breakdown = entry.get("epa", {}).get("breakdown", {})
+            records.append(
+                {
+                    "team_number": entry["team"],
+                    "auto_epa": breakdown.get("auto_points", 0),
+                    "teleop_epa": breakdown.get("teleop_points", 0),
+                    "endgame_epa": breakdown.get("endgame_points", 0),
+                    "total_epa": breakdown.get("total_points", 0),
+                }
+            )
+
+        df = pd.DataFrame(records)
+        df.to_csv(filename, index=False)
+        logger.info("Statbotics data cached to '%s'.", filename)
+        return df
 
 
-def get_alliance_epa(teams: list) -> float:
-    """_summary_
+if __name__ == "__main__":
+    import argparse
 
-    Args:
-        teams (list): _description_
+    parser = argparse.ArgumentParser(description="Fetch Statbotics EPA stats for an event.")
+    parser.add_argument("event_key", type=str, help="The FIRST FRC event key (e.g. '2026ndgf')")
+    parser.add_argument("--force", action="store_true", help="Bypass cache and re-fetch.")
+    args = parser.parse_args()
 
-    Returns:
-        float: _description_
-    """
-    total = 0.0
-    for team in teams:
-        total += team_epa[team][AUTO] + team_epa[team][TELEOP] + team_epa[team][END]
-    return total
-
-
-print("Our Alliance Total  Opposing Allinace Total  Win/Lose")
-for partners, enemies in match_schedule:
-    update_team_epa(partners + enemies)
-    us = get_alliance_epa(partners)
-    them = get_alliance_epa(enemies)
-    if us > them:
-        WINLOSE = "Win"
-    elif us < them:
-        WINLOSE = "Lose"
-    else:
-        WINLOSE = "Tie"
-
-    print(f"{us:18.1f}{them:25.1f}{WINLOSE:>10}")
+    sb = SB()
+    print(sb.get_event_team_stats(event_key=args.event_key, force=args.force))
