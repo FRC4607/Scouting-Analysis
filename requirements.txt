@@ -3,4 +3,3 @@ pre-commit
 requests
 pandas
 python-dotenv
-pygsheets

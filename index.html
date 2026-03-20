@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0f1e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>4607 Match Planner</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="manifest" href="manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #0a0f1e;
+      --surface: #111827;
+      --border:  #1e293b;
+      --accent:  #f97316;
+      --blue:    #38bdf8;
+      --red:     #f87171;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --mono:    'Share Tech Mono', monospace;
+      --sans:    'Barlow Condensed', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; min-height: 100dvh; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,15,30,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .logo { font-family: var(--mono); font-size: 20px; color: var(--accent); }
+    .logo span { color: var(--blue); }
+    header h1 { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .refresh-btn {
+      margin-left: auto; background: var(--accent); color: #000;
+      font-family: var(--sans); font-weight: 700; font-size: 12px;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;
+    }
+    .refresh-btn:hover { opacity: 0.85; }
+
+    #status {
+      display: flex; align-items: center; justify-content: center; height: 60vh;
+      font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px;
+    }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin-right: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #content { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+    .match-card {
+      border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+      animation: fadeUp 0.25s ease both;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .match-header {
+      background: var(--surface); padding: 8px 12px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .match-num { font-family: var(--mono); font-size: 20px; color: var(--accent); min-width: 80px; }
+
+    .alliance-totals { display: flex; gap: 16px; flex: 1; justify-content: center; }
+    .alliance-total { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .alliance-total .value { font-family: var(--mono); font-size: 18px; }
+    .alliance-total.blue .value { color: var(--blue); }
+    .alliance-total.red  .value { color: var(--red); }
+
+    .chevron { color: var(--muted); font-size: 16px; transition: transform 0.2s; }
+    .match-card.open .chevron { transform: rotate(180deg); }
+    .match-body { display: none; overflow-x: auto; }
+    .match-card.open .match-body { display: block; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 420px; }
+
+    thead th {
+      padding: 5px 8px; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    thead th.blue-col { color: var(--blue); text-align: center; font-size: 15px; }
+    thead th.red-col  { color: var(--red);  text-align: center; font-size: 15px; }
+    thead th.metric-col { color: var(--muted); text-align: left; min-width: 70px; }
+    thead th.sep { background: var(--bg); width: 8px; padding: 0; }
+
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr.team-row { background: var(--surface); }
+    tbody tr.total-row { background: #1a1200; }
+    tbody tr.drive-row, tbody tr.defense-row { background: #0d1117; }
+
+    tbody td { padding: 6px 8px; text-align: center; font-family: var(--mono); font-size: 14px; }
+    tbody td.metric { text-align: left; color: var(--muted); font-family: var(--sans); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+    tbody td.sep { background: var(--bg); width: 8px; padding: 0; }
+    tbody td.blue-cell { background: rgba(56,189,248,0.04); }
+    tbody td.red-cell  { background: rgba(248,113,113,0.04); }
+
+    .team-val { color: var(--accent); font-size: 14px; font-weight: bold; }
+    .c-green  { color: #4ade80; }
+    .c-mid    { color: #64748b; }
+    .c-red    { color: #f87171; }
+    .empty    { color: #2d3748; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FRC<span>4607</span></div>
+  <h1>Match Planner</h1>
+  <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
+</header>
+
+<div id="status"><div class="spinner"></div>LOADING…</div>
+<div id="content" style="display:none"></div>
+
+<script>
+  const SHEET_NAME = '2026ndgf';
+  let DIST = {};
+
+  async function fetchSheetData() {
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/${EVENT_KEY}.json`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  }
+
+  function parseMatches(data) {
+    return Object.values(data)
+      .filter(v => typeof v === 'object' && v.num !== undefined)
+      .sort((a, b) => a.num - b.num);
+  }
+
+  function fmt(val) {
+    if (val === '' || val === null || val === undefined) return '<span class="empty">—</span>';
+    const n = parseFloat(val);
+    if (isNaN(n)) return String(val);
+    if (Math.abs(n - Math.round(n)) < 0.001) return String(Math.round(n));
+    return n.toFixed(1);
+  }
+
+  function cellClass(metric, val) {
+      if (metric === 'team') return 'team-val';
+      const n = parseFloat(val);
+      const d = DIST[metric];
+      if (!d || isNaN(n)) return '';
+      if (metric === 'fouls' || metric === 'dpr') {
+          if (n <= d.p25) return 'c-green';
+          if (n >= d.p75) return 'c-red';
+          return 'c-mid';
+      }
+      if (n >= d.p75) return 'c-green';
+      if (n <= d.p25) return 'c-red';
+      return 'c-mid';
+  }
+
+  function renderMatch(m, idx) {
+    const allianceColor = m.alliance === 'BLUE' ? 'var(--blue)' : 'var(--red)';
+    const allianceBg    = m.alliance === 'BLUE' ? '#0d2040' : '#2a0d0d';
+
+    return `
+      <div class="match-card" id="mc-${m.num}" style="animation-delay:${idx * 0.02}s">
+        <div class="match-header" onclick="toggle('mc-${m.num}')">
+          <div class="match-num">Q${m.num}</div>
+          <div style="font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;background:${allianceBg};color:${allianceColor};letter-spacing:2px;">${m.alliance}</div>
+          <div class="alliance-totals">
+            <div class="alliance-total blue"><span class="value">${parseFloat(m.blueTotal).toFixed(1)}</span></div>
+            <div class="alliance-total red"><span class="value">${parseFloat(m.redTotal).toFixed(1)}</span></div>
+          </div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="match-body">
+          <table>
+            <thead>
+              <tr>
+                <th class="metric-col"></th>
+                <th class="blue-col">B1</th>
+                <th class="blue-col">B2</th>
+                <th class="blue-col">B3</th>
+                <th class="sep"></th>
+                <th class="red-col">R1</th>
+                <th class="red-col">R2</th>
+                <th class="red-col">R3</th>
+              </tr>
+            </thead>
+            <tbody>${m.rows.map(r => {
+              const cls = r.metric.toLowerCase();
+              const blueCells = r.blue.map(v =>
+                `<td class="blue-cell"><span class="${cellClass(cls, v)}">${fmt(v)}</span></td>`
+              ).join('');
+              const redCells = r.red.map(v =>
+                `<td class="red-cell"><span class="${cellClass(cls, v)}">${fmt(v)}</span></td>`
+              ).join('');
+              return `<tr class="${cls}-row">
+                <td class="metric">${cls}</td>
+                ${blueCells}
+                <td class="sep"></td>
+                ${redCells}
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  function toggle(id) { document.getElementById(id).classList.toggle('open'); }
+
+  async function loadData() {
+    const status  = document.getElementById('status');
+    const content = document.getElementById('content');
+    status.style.display  = 'flex';
+    content.style.display = 'none';
+    status.innerHTML = '<div class="spinner"></div>LOADING…';
+
+    try {
+      const data    = await fetchSheetData();
+      DIST = data.distribution || {};
+      const matches = parseMatches(data);
+
+      if (!matches.length) throw new Error('No match data found');
+
+      status.style.display  = 'none';
+      content.style.display = 'block';
+      content.innerHTML = matches.map((m, i) => renderMatch(m, i)).join('');
+    } catch (err) {
+      console.error(err);
+      status.innerHTML = `<span style="color:#f87171">⚠ ${err.message}</span>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

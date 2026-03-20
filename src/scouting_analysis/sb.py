@@ -43,10 +43,7 @@ class SB:
             resp.raise_for_status()
             data = resp.json()
         except requests.HTTPError as e:
-            logger.error("HTTP error fetching Statbotics data for event '%s': %s", event_key, e)
-            raise
-        except Exception as e:
-            logger.error("Failed to fetch Statbotics data for event '%s': %s", event_key, e)
+            print(f"Statbotics unavailable for event '{event_key}': {e} — continuing without EPA data.")
             return pd.DataFrame()
 
         if not data:

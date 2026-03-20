@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0f1e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>4607 Picklist</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="manifest" href="manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #0a0f1e;
+      --surface: #111827;
+      --border:  #1e293b;
+      --accent:  #94a3b8;
+      --blue:    #38bdf8;
+      --red:     #f87171;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --mono:    'Share Tech Mono', monospace;
+      --sans:    'Barlow Condensed', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; min-height: 100dvh; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,15,30,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .logo { font-family: var(--mono); font-size: 20px; color: #ffffff; }
+    .logo span { color: var(--accent); }
+    header h1 { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
+    .nav-btn {
+      background: var(--surface); color: var(--text);
+      font-family: var(--sans); font-weight: 700; font-size: 12px;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 6px 12px; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
+    .refresh-btn {
+      margin-left: auto; background: var(--accent); color: #000;
+      font-family: var(--sans); font-weight: 700; font-size: 12px;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;
+    }
+    .refresh-btn:hover { opacity: 0.85; }
+
+    #status {
+      display: flex; align-items: center; justify-content: center; height: 60vh;
+      font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px;
+    }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin-right: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #content { padding: 12px; overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+
+    thead th {
+      padding: 8px 10px; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; border-bottom: 2px solid var(--border);
+      background: var(--surface); color: var(--muted);
+      text-align: right; white-space: nowrap; cursor: pointer;
+      user-select: none;
+    }
+    thead th:first-child { text-align: left; }
+    thead th:last-child { text-align: left; }
+    thead th.sorted { color: var(--text); }
+    thead th:hover { color: var(--text); }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:hover { background: var(--surface); }
+    tbody tr.breakdown-row { background: rgba(248,113,113,0.05); }
+
+    tbody td { padding: 7px 10px; text-align: right; font-family: var(--mono); font-size: 13px; }
+    tbody td:first-child { text-align: left; }
+    tbody td:last-child { text-align: left; font-family: var(--sans); font-size: 12px; color: var(--muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .rank { color: var(--muted); font-size: 11px; margin-right: 6px; }
+    .team-num { color: var(--accent); font-size: 15px; font-weight: bold; }
+    .breakdown-badge {
+      display: inline-block; font-size: 10px; padding: 1px 5px;
+      border-radius: 3px; background: rgba(248,113,113,0.2);
+      color: var(--red); margin-left: 4px; font-family: var(--sans);
+    }
+
+    .comments-cell {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .comments-cell.expanded {
+        white-space: normal;
+        overflow: visible;
+        max-width: 400px;
+        color: var(--text);
+    }
+
+    .c-green { color: #4ade80; }
+    .c-mid   { color: #64748b; }
+    .c-red   { color: #f87171; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FRC<span>4607</span></div>
+  <h1>Picklist</h1>
+  <!-- <a class="nav-btn" href="index.html">← Planner</a> -->
+  <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
+</header>
+
+<div id="status"><div class="spinner"></div>LOADING…</div>
+<div id="content" style="display:none"></div>
+
+<script>
+  const EVENT_KEY = '2026ndgf';
+  let DIST = {};
+  let allTeams = [];
+  let sortCol = 'score';
+  let sortAsc = false;
+
+  async function fetchData() {
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/${EVENT_KEY}_picklist.json`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  }
+
+  function cellClass(col, val) {
+    const n = parseFloat(val);
+    const d = DIST[col];
+    if (!d || isNaN(n) || val === '') return '';
+    if (col === 'drive_rank' || col === 'defense_rank') {
+      if (n >= d.p75) return 'c-green';
+      if (n <= d.p25) return 'c-red';
+      return 'c-mid';
+    }
+    if (n >= d.p75) return 'c-green';
+    if (n <= d.p25) return 'c-red';
+    return 'c-mid';
+  }
+
+  function fmt(val) {
+    if (val === '' || val === null || val === undefined) return '—';
+    const n = parseFloat(val);
+    if (isNaN(n)) return String(val);
+    if (Math.abs(n - Math.round(n)) < 0.001) return String(Math.round(n));
+    return n.toFixed(1);
+  }
+
+  function sortTeams(col) {
+    if (sortCol === col) {
+      sortAsc = !sortAsc;
+    } else {
+      sortCol = col;
+      sortAsc = false;
+    }
+    renderTable();
+  }
+
+  function renderTable() {
+    const cols = ['score', 'auto', 'teleop', 'endgame', 'drive_rank', 'defense_rank', 'breakdown', 'comments'];
+    const labels = {
+      score: 'score', auto: 'auto', teleop: 'teleop', endgame: 'endgame',
+      drive_rank: 'drive', defense_rank: 'defense', breakdown: 'brkdwn', comments: 'comments'
+    };
+
+    const sorted = [...allTeams].sort((a, b) => {
+      const av = parseFloat(a[sortCol]) || 0;
+      const bv = parseFloat(b[sortCol]) || 0;
+      return sortAsc ? av - bv : bv - av;
+    });
+
+    const headers = `<tr>
+      <th onclick="sortTeams('team')" class="${sortCol === 'team' ? 'sorted' : ''}">team</th>
+      ${cols.map(c => `<th onclick="sortTeams('${c}')" class="${sortCol === c ? 'sorted' : ''}">${labels[c]} ${sortCol === c ? (sortAsc ? '↑' : '↓') : ''}</th>`).join('')}
+    </tr>`;
+
+    const bodyRows = sorted.map((t, i) => {
+      const cells = cols.map(c => {
+        if (c === 'comments') return `<td class="comments-cell" onclick="this.classList.toggle('expanded')" title="tap to expand">${t[c] || '—'}</td>`;
+        if (c === 'breakdown') return `<td>${t[c] > 0 ? `<span class="breakdown-badge">${t[c]}x</span>` : '—'}</td>`;
+        return `<td><span class="${cellClass(c, t[c])}">${fmt(t[c])}</span></td>`;
+      }).join('');
+
+      return `<tr class="${t.breakdown > 0 ? 'breakdown-row' : ''}">
+        <td><span class="rank">${i + 1}</span><span class="team-num">${t.team}</span></td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    document.getElementById('content').innerHTML = `
+      <table>
+        <thead>${headers}</thead>
+        <tbody>${bodyRows}</tbody>
+      </table>`;
+  }
+
+  async function loadData() {
+    const status  = document.getElementById('status');
+    const content = document.getElementById('content');
+    status.style.display  = 'flex';
+    content.style.display = 'none';
+    status.innerHTML = '<div class="spinner"></div>LOADING…';
+
+    try {
+      const data = await fetchData();
+      DIST     = data.distribution || {};
+      allTeams = data.teams || [];
+
+      if (!allTeams.length) throw new Error('No picklist data found');
+
+      status.style.display  = 'none';
+      content.style.display = 'block';
+      renderTable();
+    } catch (err) {
+      console.error(err);
+      status.innerHTML = `<span style="color:#f87171">⚠ ${err.message}</span>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

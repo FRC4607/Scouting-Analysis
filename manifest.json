@@ -1,0 +1,21 @@
+{
+  "name": "FRC4607 Match Planner",
+  "short_name": "4607 Planner",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "description": "FRC Team 4607 match planning app",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

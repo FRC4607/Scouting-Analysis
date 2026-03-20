@@ -1,6 +1,6 @@
 # Scouting-Analysis
 
-This python project provides the tools necessary to analyze 4607's scouting data.
+This python project provides the tools necessary to analyze 4607's scouting data alongside the publically available data from TBA and Statbotics.
 
 ## Installation Instructions
 

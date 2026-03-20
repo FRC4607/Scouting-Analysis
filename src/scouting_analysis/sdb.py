@@ -16,7 +16,8 @@ from .constants import (
 logger = logging.getLogger(__name__)
 
 _RAW_RESPONSE_FILE = "sdb_resp.txt"
-_COMMENTS_COL_IDX = 11
+_SCOUTING_COMMENTS_COL_IDX = 11
+_PITS_COMMENTS_COL_IDX = 15
 
 
 class SDB:
@@ -48,7 +49,7 @@ class SDB:
         if not force and Path(self.filename).is_file():
             logger.debug("Loading cached scouting database from '%s'.", self.filename)
             return pd.read_csv(self.filename)
-        self._fetch_and_cache(url=self.url, filename=self.filename)
+        self._fetch_and_cache(url=self.url, filename=self.filename, comments_col_idx=_SCOUTING_COMMENTS_COL_IDX)
         return pd.read_csv(self.filename)
 
     def get_event_scouting_data(self, event_key: str, force: bool = False) -> pd.DataFrame:
@@ -96,7 +97,7 @@ class SDB:
         if not force and Path(self.pits_filename).is_file():
             logger.debug("Loading cached pits database from '%s'.", self.pits_filename)
             return pd.read_csv(self.pits_filename)
-        self._fetch_and_cache(url=self.pits_url, filename=self.pits_filename)
+        self._fetch_and_cache(url=self.pits_url, filename=self.pits_filename, comments_col_idx=_PITS_COMMENTS_COL_IDX)
         return pd.read_csv(self.pits_filename)
 
     def get_event_pits_data(self, event_key: str, force: bool = False) -> pd.DataFrame:
@@ -133,12 +134,18 @@ class SDB:
     # Private helpers                                                      #
     # ------------------------------------------------------------------ #
 
-    def _fetch_and_cache(self, url: str | None = None, filename: str | None = None) -> None:
+    def _fetch_and_cache(
+        self,
+        url: str | None = None,
+        filename: str | None = None,
+        comments_col_idx: int = _SCOUTING_COMMENTS_COL_IDX,
+    ) -> None:
         """Fetch raw data from the server, parse it, and save to CSV.
 
         Args:
             url (str): URL to fetch from. Defaults to self.url.
             filename (str): Cache filename. Defaults to self.filename.
+            comments_col_idx (int): Column index where extra commas should be merged.
 
         Raises:
             requests.HTTPError: If the server returns a non-2xx response.
@@ -157,25 +164,28 @@ class SDB:
         Path(_RAW_RESPONSE_FILE).write_text(raw_text, encoding="utf-8")
         logger.info("Raw response saved to '%s'.", _RAW_RESPONSE_FILE)
 
-        df = self._parse_csv(raw_text)
+        df = self._parse_csv(raw_text, comments_col_idx=comments_col_idx)
         df["scouted_time"] = df["scouted_time"].apply(self._convert_datetime)
         df.to_csv(filename, index=False)
         logger.info("Database cached to '%s'.", filename)
 
-    def _parse_csv(self, raw_text: str, debug: bool = False) -> pd.DataFrame:
+    def _parse_csv(
+        self, raw_text: str, debug: bool = False, comments_col_idx: int = _SCOUTING_COMMENTS_COL_IDX
+    ) -> pd.DataFrame:
         """Parse a potentially malformed CSV response into a DataFrame.
 
         Handles two known anomalies:
         - Rows split across multiple lines (too few columns).
-        - Extra commas inside the comments field (too many columns), resolved
-          by joining the overflow tokens at column index _COMMENTS_COL_IDX with '-'.
+        - Extra commas inside text fields (too many columns), resolved
+          by joining the overflow tokens at comments_col_idx with '-'.
 
         Args:
             raw_text (str): Raw CSV text from the server.
             debug (bool): Log extra detail about non-conforming rows. Defaults to False.
+            comments_col_idx (int): Column index where extra commas should be merged.
 
         Returns:
-            pd.DataFrame: Parsed scouting data.
+            pd.DataFrame: Parsed data.
         """
         db: list[list[str]] = []
         exp_num_cols: int | None = None
@@ -220,7 +230,7 @@ class SDB:
                         )
                     line_continuation = line.strip()
 
-            # Too many columns — extra commas in the comments field
+            # Too many columns — extra commas in a text field
             else:
                 if debug:
                     logger.debug(
@@ -230,9 +240,9 @@ class SDB:
                         exp_num_cols,
                     )
                 while len(split_line) > exp_num_cols:
-                    joined = "-".join([split_line[_COMMENTS_COL_IDX], split_line[_COMMENTS_COL_IDX + 1]])
-                    split_line[_COMMENTS_COL_IDX] = joined
-                    split_line.pop(_COMMENTS_COL_IDX + 1)
+                    joined = "-".join([split_line[comments_col_idx], split_line[comments_col_idx + 1]])
+                    split_line[comments_col_idx] = joined
+                    split_line.pop(comments_col_idx + 1)
                     if debug:
                         logger.debug("Comments tokens joined: %s", joined)
                 db.append(split_line)
@@ -267,4 +277,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     sdb = SDB()
-    sdb.get_full_scouting_database(force=args.force)
+    sdb.get_full_pits_database(force=args.force)

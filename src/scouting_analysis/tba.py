@@ -111,6 +111,27 @@ class TBA:
         logger.info("Fetched and cached '%s'.", filename)
         return df
 
+    def get_event_oprs(self, event_key: str, force: bool = False) -> pd.DataFrame:
+        """Get OPR, DPR, and CCWM for all teams at an event.
+
+        Args:
+            event_key (str): The event key.
+            force (bool): Skip cached data and force a refresh. Defaults to False.
+
+        Returns:
+            pd.DataFrame: OPR, DPR, and CCWM keyed by team number.
+        """
+        filename = f"event_oprs_{event_key}.csv"
+        if not force and Path(filename).is_file():
+            logger.debug("Loading cached OPRs from '%s'.", filename)
+            return pd.read_csv(filename, index_col="team_key")
+
+        df = self._make_request(f"/event/{event_key}/oprs")
+        df.index.name = "team_key"
+        df.to_csv(filename, index=True)
+        logger.info("Fetched and cached '%s'.", filename)
+        return df
+
     # ------------------------------------------------------------------ #
     # Private helpers                                                    #
     # ------------------------------------------------------------------ #
