@@ -8,9 +8,17 @@ on:
 jobs:
   notify-planner:
     runs-on: ubuntu-latest
-    if: contains(toJson(github.event.commits), 'webapp/2026') && !contains(toJson(github.event.commits), '_picklist')
     steps:
+      - name: Check for planner file changes
+        id: check
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            planner:
+              - 'webapp/2026*.json'
+              - '!webapp/*_picklist.json'
       - name: Send Planner notification
+        if: steps.check.outputs.planner == 'true'
         run: |
           curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
             -H 'Content-type: application/json' \
@@ -18,9 +26,16 @@ jobs:
 
   notify-picklist:
     runs-on: ubuntu-latest
-    if: contains(toJson(github.event.commits), '_picklist')
     steps:
+      - name: Check for picklist file changes
+        id: check
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            picklist:
+              - 'webapp/*_picklist.json'
       - name: Send Picklist notification
+        if: steps.check.outputs.picklist == 'true'
         run: |
           curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
             -H 'Content-type: application/json' \
