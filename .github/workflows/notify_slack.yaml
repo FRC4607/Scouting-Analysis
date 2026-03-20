@@ -1,3 +1,12 @@
+name: Notify Slack on Analysis Update
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'webapp/*.json'
+
 jobs:
   notify-planner:
     runs-on: ubuntu-latest
