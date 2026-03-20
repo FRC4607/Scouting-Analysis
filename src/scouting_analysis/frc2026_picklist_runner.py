@@ -20,7 +20,7 @@ def push_to_github(data: dict, event_key: str) -> None:
     """Push match planner JSON to GitHub repo.
 
     Args:
-        data (dict): Match planner data to push.
+        data (dict): Match planner or picklist data to push.
         event_key (str): Event key used as filename.
     """
     token = environ["GITHUB_TOKEN"]
@@ -40,7 +40,7 @@ def push_to_github(data: dict, event_key: str) -> None:
     content = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
 
     payload = {
-        "message": f"Update match planner data for {event_key}",
+        "message": f"Update {filename} data for {event_key}",
         "content": content,
     }
     if sha:
@@ -60,6 +60,12 @@ def main():
     parser.add_argument("--event_key", required=True, type=str, help="The FIRST FRC event key")
     parser.add_argument("--metric", required=False, type=str, default="mean", help="Ranking metric: 'mean' or 'median'")
     parser.add_argument("--save", required=False, action="store_true", help="Save picklist to Google Drive")
+    parser.add_argument(
+        "--post",
+        required=False,
+        action="store_true",
+        help="Push latest JSON files to GitHub and trigger Slack notifications",
+    )
     parser.add_argument("--teams", required=False, type=int, nargs="+", help="List of specific teams to analyze")
     args = parser.parse_args()
 
@@ -231,7 +237,10 @@ def main():
             }
 
         match_data["distribution"] = distribution
-        push_to_github(match_data, f"webapp/{args.event_key}")
+        match_data["event_key"] = args.event_key
+
+        # Push event-specific JSON
+        push_to_github(match_data, f"webapp/{args.event_key}_planner")
 
         # Build and push picklist JSON
         picklist_data = {"distribution": distribution, "teams": []}
@@ -250,7 +259,16 @@ def main():
                 }
             )
 
+        picklist_data["event_key"] = args.event_key
+
+        # Push event-specific picklist JSON
         push_to_github(picklist_data, f"webapp/{args.event_key}_picklist")
+
+        # Push latest picklist JSON
+        # Only push latest when --post is specified
+        if args.post:
+            push_to_github(match_data, "webapp/latest_planner")
+            push_to_github(picklist_data, "webapp/latest_picklist")
 
 
 if __name__ == "__main__":

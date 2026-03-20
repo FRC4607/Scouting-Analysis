@@ -16,7 +16,7 @@
       --bg:      #0a0f1e;
       --surface: #111827;
       --border:  #1e293b;
-      --accent:  #f97316;
+      --accent:  #94a3b8;
       --blue:    #38bdf8;
       --red:     #f87171;
       --text:    #e2e8f0;
@@ -34,9 +34,9 @@
       border-bottom: 1px solid var(--border);
       padding: 10px 16px; display: flex; align-items: center; gap: 12px;
     }
-    .logo { font-family: var(--mono); font-size: 20px; color: var(--accent); }
-    .logo span { color: var(--blue); }
-    header h1 { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .logo { font-family: var(--mono); font-size: 20px; color: #ffffff; }
+    .logo span { color: var(--accent); }
+    header h1 { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
     .refresh-btn {
       margin-left: auto; background: var(--accent); color: #000;
       font-family: var(--sans); font-weight: 700; font-size: 12px;
@@ -117,7 +117,7 @@
 
 <header>
   <div class="logo">FRC<span>4607</span></div>
-  <h1>Match Planner</h1>
+  <h1 id="page-title">Match Planner</h1>
   <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
 </header>
 
@@ -125,11 +125,10 @@
 <div id="content" style="display:none"></div>
 
 <script>
-  const EVENT_KEY = '2026ndgf';
   let DIST = {};
 
   async function fetchSheetData() {
-    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/${EVENT_KEY}.json`;
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_planner.json`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -225,6 +224,7 @@
     try {
       const data    = await fetchSheetData();
       DIST = data.distribution || {};
+      document.getElementById('page-title').textContent = `Match Planner — ${data.event_key || EVENT_KEY}`;
       const matches = parseMatches(data);
 
       if (!matches.length) throw new Error('No match data found');

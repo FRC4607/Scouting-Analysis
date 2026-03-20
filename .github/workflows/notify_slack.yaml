@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'webapp/*.json'
+      - 'webapp/latest_planner.json'
+      - 'webapp/latest_picklist.json'
 
 jobs:
   notify-planner:
@@ -20,8 +21,7 @@ jobs:
         with:
           filters: |
             planner:
-              - 'webapp/2026*.json'
-              - '!webapp/*_picklist.json'
+              - 'webapp/latest_planner.json'
 
       - name: Send Planner notification
         if: steps.check.outputs.planner == 'true'
@@ -42,7 +42,7 @@ jobs:
         with:
           filters: |
             picklist:
-              - 'webapp/*_picklist.json'
+              - 'webapp/latest_picklist.json'
 
       - name: Send Picklist notification
         if: steps.check.outputs.picklist == 'true'

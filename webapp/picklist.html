@@ -122,7 +122,7 @@
 
 <header>
   <div class="logo">FRC<span>4607</span></div>
-  <h1>Picklist</h1>
+  <h1 id="page-title">Picklist</h1>
   <!-- <a class="nav-btn" href="index.html">← Planner</a> -->
   <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
 </header>
@@ -131,14 +131,13 @@
 <div id="content" style="display:none"></div>
 
 <script>
-  const EVENT_KEY = '2026ndgf';
   let DIST = {};
   let allTeams = [];
   let sortCol = 'score';
   let sortAsc = false;
 
   async function fetchData() {
-    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/${EVENT_KEY}_picklist.json`;
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_picklist.json`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -223,7 +222,8 @@
 
     try {
       const data = await fetchData();
-      DIST     = data.distribution || {};
+      DIST = data.distribution || {};
+      document.getElementById('page-title').textContent = `Picklist — ${data.event_key || EVENT_KEY}`;
       allTeams = data.teams || [];
 
       if (!allTeams.length) throw new Error('No picklist data found');
