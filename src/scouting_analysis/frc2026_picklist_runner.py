@@ -16,16 +16,16 @@ from .sdb import SDB
 from .tba import TBA
 
 
-def push_to_github(data: dict, event_key: str) -> None:
+def push_to_github(data: dict, base_filename: str) -> None:
     """Push match planner JSON to GitHub repo.
 
     Args:
         data (dict): Match planner or picklist data to push.
-        event_key (str): Event key used as filename.
+        base_filename (str): Base filename for the JSON file.
     """
     token = environ["GITHUB_TOKEN"]
     repo = "FRC4607/Scouting-Analysis"
-    filename = f"webapp/{event_key}.json"
+    filename = f"webapp/{base_filename}.json"
     api_url = f"https://api.github.com/repos/{repo}/contents/{filename}"
 
     headers = {
@@ -40,7 +40,7 @@ def push_to_github(data: dict, event_key: str) -> None:
     content = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
 
     payload = {
-        "message": f"Update {filename} data for {event_key}",
+        "message": f"Update {filename} data",
         "content": content,
     }
     if sha:
@@ -240,7 +240,7 @@ def main():
         match_data["event_key"] = args.event_key
 
         # Push event-specific JSON
-        push_to_github(match_data, f"webapp/{args.event_key}_planner")
+        push_to_github(match_data, f"{args.event_key}_planner")
 
         # Build and push picklist JSON
         picklist_data = {"distribution": distribution, "teams": []}
@@ -262,13 +262,13 @@ def main():
         picklist_data["event_key"] = args.event_key
 
         # Push event-specific picklist JSON
-        push_to_github(picklist_data, f"webapp/{args.event_key}_picklist")
+        push_to_github(picklist_data, f"{args.event_key}_picklist")
 
         # Push latest picklist JSON
         # Only push latest when --post is specified
         if args.post:
-            push_to_github(match_data, "webapp/latest_planner")
-            push_to_github(picklist_data, "webapp/latest_picklist")
+            push_to_github(match_data, "latest_planner")
+            push_to_github(picklist_data, "latest_picklist")
 
 
 if __name__ == "__main__":
