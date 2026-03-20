@@ -10,7 +10,6 @@ import requests
 import yaml
 from dotenv import load_dotenv  # type: ignore
 
-from .constants import SLACK_WEBHOOK_URL
 from .frc2026_picklist_analysis import FRC2026PicklistAnalysis
 from .sb import SB
 from .sdb import SDB
@@ -61,14 +60,6 @@ def main():
     parser.add_argument("--event_key", required=True, type=str, help="The FIRST FRC event key")
     parser.add_argument("--metric", required=False, type=str, default="mean", help="Ranking metric: 'mean' or 'median'")
     parser.add_argument("--save", required=False, action="store_true", help="Save picklist to Google Drive")
-    parser.add_argument(
-        "--post",
-        required=False,
-        type=str,
-        nargs="?",
-        const="Picklist has been updated",
-        help="Post to Slack with optional message",
-    )
     parser.add_argument("--teams", required=False, type=int, nargs="+", help="List of specific teams to analyze")
     args = parser.parse_args()
 
@@ -260,14 +251,6 @@ def main():
             )
 
         push_to_github(picklist_data, f"webapp/{args.event_key}_picklist")
-
-    if args.post:
-        requests.post(
-            SLACK_WEBHOOK_URL,
-            json={
-                "text": f"<https://docs.google.com/spreadsheets/d/1SvHOPDw2rYIPh_sKbQbgwFHQDTYYh28oO00uc3d6jQI/edit?usp=drive_link|{args.post}>"
-            },
-        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+name: Notify Slack on Analysis Update
+
+on:
+  push:
+    paths:
+      - 'webapp/*.json'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        run: |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+            -H 'Content-type: application/json' \
+            -d '{"text": "Analysis JSON updated for ${{ github.ref_name }} — <https://frc4607.github.io/Scouting-Analysis/webapp/planner.html|Open Planner>"}'
