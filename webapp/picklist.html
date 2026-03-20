@@ -138,7 +138,7 @@
   let sortAsc = false;
 
   async function fetchData() {
-    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/${EVENT_KEY}_picklist.json`;
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/${EVENT_KEY}_picklist.json`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();

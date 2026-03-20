@@ -1,7 +1,7 @@
 {
   "name": "FRC4607 Match Planner",
   "short_name": "4607 Planner",
-  "start_url": ".",
+  "start_url": "planner.html",
   "display": "standalone",
   "background_color": "#0a0f1e",
   "theme_color": "#0a0f1e",

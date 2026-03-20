@@ -26,7 +26,7 @@ def push_to_github(data: dict, event_key: str) -> None:
     """
     token = environ["GITHUB_TOKEN"]
     repo = "FRC4607/Scouting-Analysis"
-    filename = f"{event_key}.json"
+    filename = f"webapp/{event_key}.json"
     api_url = f"https://api.github.com/repos/{repo}/contents/{filename}"
 
     headers = {
@@ -240,7 +240,7 @@ def main():
             }
 
         match_data["distribution"] = distribution
-        push_to_github(match_data, args.event_key)
+        push_to_github(match_data, f"webapp/{args.event_key}")
 
         # Build and push picklist JSON
         picklist_data = {"distribution": distribution, "teams": []}
@@ -259,7 +259,7 @@ def main():
                 }
             )
 
-        push_to_github(picklist_data, f"{args.event_key}_picklist")
+        push_to_github(picklist_data, f"webapp/{args.event_key}_picklist")
 
     if args.post:
         requests.post(
