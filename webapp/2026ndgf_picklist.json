@@ -37,10 +37,10 @@
     {
       "team": 7257,
       "score": 143.9,
-      "auto": 18.7,
+      "auto": 18.8,
       "teleop": 91.5,
-      "endgame": 32.5,
-      "drive_rank": 4.7,
+      "endgame": 33.5,
+      "drive_rank": 4.6,
       "defense_rank": 2.4,
       "breakdown": 0,
       "comments": " | Large hopper fast shot speed and good accuracy |  |  | Really efficient and can climb  | A bit inaccurate  | "
@@ -595,5 +595,6 @@
       "breakdown": 0,
       "comments": "Pushes balls under trench dident shoot once | Very inaccurate firing |  | Intake can take a hit | "
     }
-  ]
+  ],
+  "event_key": "2026ndgf"
 }
