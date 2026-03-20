@@ -6,11 +6,22 @@ on:
       - 'webapp/*.json'
 
 jobs:
-  notify:
+  notify-planner:
     runs-on: ubuntu-latest
+    if: contains(toJson(github.event.commits), 'webapp/2026') && !contains(toJson(github.event.commits), '_picklist')
     steps:
-      - name: Send Slack notification
+      - name: Send Planner notification
         run: |
           curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
             -H 'Content-type: application/json' \
-            -d '{"text": "Analysis JSON updated for ${{ github.ref_name }} — <https://frc4607.github.io/Scouting-Analysis/webapp/planner.html|Open Planner>"}'
+            -d '{"text": "Match planner updated — <https://frc4607.github.io/Scouting-Analysis/webapp/planner.html|Open Planner>"}'
+
+  notify-picklist:
+    runs-on: ubuntu-latest
+    if: contains(toJson(github.event.commits), '_picklist')
+    steps:
+      - name: Send Picklist notification
+        run: |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+            -H 'Content-type: application/json' \
+            -d '{"text": "Picklist updated — <https://frc4607.github.io/Scouting-Analysis/webapp/picklist.html|Open Picklist>"}'
