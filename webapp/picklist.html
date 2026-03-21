@@ -116,6 +116,16 @@
     .c-green { color: #4ade80; }
     .c-mid   { color: #64748b; }
     .c-red   { color: #f87171; }
+
+    .team-checkbox {
+        display: flex; align-items: center; gap: 6px;
+        background: var(--bg); border: 1px solid var(--border);
+        border-radius: 4px; padding: 4px 10px;
+        font-family: var(--mono); font-size: 12px; cursor: pointer;
+    }
+    .team-checkbox input { cursor: pointer; accent-color: var(--accent); }
+    tbody tr.hidden-team { display: none; }
+
   </style>
 </head>
 <body>
@@ -124,8 +134,17 @@
   <div class="logo">FRC<span>4607</span></div>
   <h1 id="page-title">Picklist</h1>
   <!-- <a class="nav-btn" href="index.html">← Planner</a> -->
+  <button class="nav-btn" onclick="togglePanel()">☑ Selected (0)</button>
   <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
 </header>
+
+<div id="selection-panel" style="display:none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+    <span style="font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);">Selected Teams</span>
+    <button onclick="clearAll()" style="background:var(--red);color:#000;border:none;border-radius:4px;padding:4px 10px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Clear All</button>
+  </div>
+  <div id="checkbox-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+</div>
 
 <div id="status"><div class="spinner"></div>LOADING…</div>
 <div id="content" style="display:none"></div>
@@ -135,6 +154,49 @@
   let allTeams = [];
   let sortCol = 'score';
   let sortAsc = false;
+
+  let STORAGE_KEY = 'selected_teams_latest';
+  let selectedTeams = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+
+  function togglePanel() {
+      const panel = document.getElementById('selection-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function updateSelectedCount() {
+      document.querySelector('button[onclick="togglePanel()"]').textContent = `☑ Selected (${selectedTeams.size})`;
+  }
+
+  function toggleTeam(team, checked) {
+      if (checked) {
+          selectedTeams.add(team);
+      } else {
+          selectedTeams.delete(team);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...selectedTeams]));
+      updateSelectedCount();
+      renderTable();
+  }
+
+  function clearAll() {
+      selectedTeams.clear();
+      localStorage.setItem(STORAGE_KEY, '[]');
+      updateSelectedCount();
+      renderCheckboxList();
+      renderTable();
+  }
+
+  function renderCheckboxList() {
+      const sorted = [...allTeams].map(t => t.team).sort((a, b) => a - b);
+      document.getElementById('checkbox-list').innerHTML = sorted.map(team => `
+          <label class="team-checkbox">
+              <input type="checkbox" ${selectedTeams.has(team) ? 'checked' : ''}
+                  onchange="toggleTeam(${team}, this.checked)" />
+              ${team}
+          </label>
+      `).join('');
+      updateSelectedCount();
+  }
 
   async function fetchData() {
     const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_picklist.json`;
@@ -200,7 +262,12 @@
         return `<td><span class="${cellClass(c, t[c])}">${fmt(t[c])}</span></td>`;
       }).join('');
 
-      return `<tr class="${t.breakdown > 0 ? 'breakdown-row' : ''}">
+      const rowClass = [
+          t.breakdown > 0 ? 'breakdown-row' : '',
+          selectedTeams.has(t.team) ? 'hidden-team' : ''
+      ].filter(Boolean).join(' ');
+
+      return `<tr class="${rowClass}">
         <td><span class="rank">${i + 1}</span><span class="team-num">${t.team}</span></td>
         ${cells}
       </tr>`;
@@ -223,6 +290,8 @@
     try {
       const data = await fetchData();
       DIST = data.distribution || {};
+      STORAGE_KEY = `selected_teams_${data.event_key || 'latest'}`;
+      selectedTeams = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
       document.getElementById('page-title').textContent = `Picklist — ${data.event_key || EVENT_KEY}`;
       allTeams = data.teams || [];
 
@@ -231,6 +300,7 @@
       status.style.display  = 'none';
       content.style.display = 'block';
       renderTable();
+      renderCheckboxList();
     } catch (err) {
       console.error(err);
       status.innerHTML = `<span style="color:#f87171">⚠ ${err.message}</span>`;
