@@ -206,17 +206,17 @@
   }
 
   function cellClass(col, val) {
-    const n = parseFloat(val);
-    const d = DIST[col];
-    if (!d || isNaN(n) || val === '') return '';
-    if (col === 'drive_rank' || col === 'defense_rank') {
+      const n = parseFloat(val);
+      const distKey = {
+          'score': 'total',
+          'drive_rank': 'drive',
+          'defense_rank': 'defense'
+      }[col] || col;
+      const d = DIST[distKey];
+      if (!d || isNaN(n) || val === '') return '';
       if (n >= d.p75) return 'c-green';
       if (n <= d.p25) return 'c-red';
       return 'c-mid';
-    }
-    if (n >= d.p75) return 'c-green';
-    if (n <= d.p25) return 'c-red';
-    return 'c-mid';
   }
 
   function fmt(val) {
