@@ -7,15 +7,11 @@
   "theme_color": "#0a0f1e",
   "description": "FRC Team 4607 scouting app",
   "icons": [
-    {
-      "src": "favicon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "favicon.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+      {
+        "src": "favicon.png",
+        "sizes": "1024x1024",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
   ]
 }
