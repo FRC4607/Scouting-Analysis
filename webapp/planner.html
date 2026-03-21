@@ -37,6 +37,14 @@
     .logo { font-family: var(--mono); font-size: 20px; color: #ffffff; }
     .logo span { color: var(--accent); }
     header h1 { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
+    .nav-btn {
+      background: var(--surface); color: var(--text);
+      font-family: var(--sans); font-weight: 700; font-size: 12px;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 6px 12px; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
     .refresh-btn {
       margin-left: auto; background: var(--accent); color: #000;
       font-family: var(--sans); font-weight: 700; font-size: 12px;
@@ -118,6 +126,7 @@
 <header>
   <div class="logo">FRC<span>4607</span></div>
   <h1 id="page-title">Match Planner</h1>
+  <a class="nav-btn" href="picklist.html">Picklist →</a>
   <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
 </header>
 

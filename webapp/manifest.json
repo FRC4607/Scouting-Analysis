@@ -1,11 +1,11 @@
 {
-  "name": "FRC4607 Match Planner",
-  "short_name": "4607 Planner",
+  "name": "FRC4607 Scouting",
+  "short_name": "4607 Scouting",
   "start_url": "planner.html",
   "display": "standalone",
   "background_color": "#0a0f1e",
   "theme_color": "#0a0f1e",
-  "description": "FRC Team 4607 match planning app",
+  "description": "FRC Team 4607 scouting app",
   "icons": [
     {
       "src": "favicon.png",
