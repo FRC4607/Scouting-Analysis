@@ -1,66 +1,45 @@
 {
   "distribution": {
     "auto": {
-      "p25": 1.8,
-      "p75": 12.1
+      "p25": 3.4,
+      "p75": 12.9
     },
     "teleop": {
-      "p25": 3.4,
-      "p75": 43.6
+      "p25": 7.4,
+      "p75": 59.9
     },
     "endgame": {
-      "p25": 1.5,
-      "p75": 13.6
+      "p25": 3.5,
+      "p75": 18.1
     },
     "total": {
-      "p25": 8.9,
-      "p75": 72.6
+      "p25": 13.4,
+      "p75": 95.9
+    },
+    "fouls": {
+      "p25": -0.0,
+      "p75": 0.4
     },
     "dpr": {
       "p25": 0.0,
-      "p75": 0.0
+      "p75": 65.3
+    },
+    "drive": {
+      "p25": 2.0,
+      "p75": 4.0
+    },
+    "defense": {
+      "p25": 2.0,
+      "p75": 3.0
     }
   },
   "teams": [
     {
       "team": 4728,
-      "score": 213.7,
-      "auto": 23.0,
-      "teleop": 147.1,
-      "endgame": 43.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 3276,
-      "score": 125.9,
-      "auto": 18.0,
-      "teleop": 86.4,
-      "endgame": 21.5,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 5913,
-      "score": 121.5,
-      "auto": 27.4,
-      "teleop": 79.2,
-      "endgame": 14.8,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 6045,
-      "score": 117.6,
-      "auto": 13.1,
-      "teleop": 84.2,
-      "endgame": 20.3,
+      "score": 203.5,
+      "auto": 22.4,
+      "teleop": 138.7,
+      "endgame": 42.4,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -68,355 +47,157 @@
     },
     {
       "team": 6175,
-      "score": 113.9,
+      "score": 112.1,
       "auto": 12.7,
-      "teleop": 79.2,
-      "endgame": 22.0,
-      "drive_rank": "",
-      "defense_rank": "",
+      "teleop": 76.5,
+      "endgame": 22.8,
+      "drive_rank": 5.0,
+      "defense_rank": 3.0,
       "breakdown": 0,
-      "comments": ""
+      "comments": " |  | "
     },
     {
-      "team": 8255,
-      "score": 110.4,
-      "auto": 17.3,
-      "teleop": 69.7,
-      "endgame": 23.5,
-      "drive_rank": "",
-      "defense_rank": "",
+      "team": 6045,
+      "score": 109.1,
+      "auto": 12.2,
+      "teleop": 77.9,
+      "endgame": 18.9,
+      "drive_rank": 4.0,
+      "defense_rank": 3.0,
       "breakdown": 0,
       "comments": ""
     },
     {
       "team": 4607,
-      "score": 102.2,
-      "auto": 22.9,
-      "teleop": 58.5,
-      "endgame": 20.8,
-      "drive_rank": "",
+      "score": 101.9,
+      "auto": 22.3,
+      "teleop": 57.8,
+      "endgame": 21.8,
+      "drive_rank": 4.0,
       "defense_rank": "",
       "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 7028,
-      "score": 99.7,
-      "auto": 17.2,
-      "teleop": 64.5,
-      "endgame": 17.9,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2509,
-      "score": 99.0,
-      "auto": 20.0,
-      "teleop": 61.1,
-      "endgame": 18.0,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "comments": " |  |  |  |  |  |  |  |  |  |  |  | "
     },
     {
       "team": 2503,
-      "score": 91.4,
-      "auto": 11.6,
-      "teleop": 58.6,
-      "endgame": 21.3,
-      "drive_rank": "",
-      "defense_rank": "",
+      "score": 96.4,
+      "auto": 13.0,
+      "teleop": 62.0,
+      "endgame": 21.4,
+      "drive_rank": 4.0,
+      "defense_rank": 4.0,
       "breakdown": 0,
-      "comments": ""
+      "comments": "Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel  | Got Beached on fuel "
     },
     {
       "team": 876,
-      "score": 88.5,
-      "auto": 17.0,
-      "teleop": 56.5,
-      "endgame": 15.0,
-      "drive_rank": "",
-      "defense_rank": "",
+      "score": 94.5,
+      "auto": 18.2,
+      "teleop": 60.6,
+      "endgame": 15.7,
+      "drive_rank": 5.0,
+      "defense_rank": 2.0,
       "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2883,
-      "score": 86.2,
-      "auto": 26.9,
-      "teleop": 47.4,
-      "endgame": 11.9,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "comments": "Great driver | Great driver | Great driver"
     },
     {
       "team": 5348,
-      "score": 82.0,
-      "auto": 14.8,
-      "teleop": 58.3,
-      "endgame": 9.0,
-      "drive_rank": "",
+      "score": 76.9,
+      "auto": 13.8,
+      "teleop": 53.9,
+      "endgame": 9.1,
+      "drive_rank": 4.0,
       "defense_rank": "",
       "breakdown": 0,
-      "comments": ""
+      "comments": "Beached in neutral zone during autoL1 climbHit trench"
     },
     {
       "team": 4226,
-      "score": 63.1,
-      "auto": 11.3,
-      "teleop": 37.5,
-      "endgame": 14.3,
+      "score": 57.6,
+      "auto": 10.7,
+      "teleop": 34.1,
+      "endgame": 12.9,
       "drive_rank": "",
       "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 6709,
-      "score": 60.7,
-      "auto": 8.3,
-      "teleop": 34.5,
-      "endgame": 17.9,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 7578,
-      "score": 58.6,
-      "auto": 12.5,
-      "teleop": 35.5,
-      "endgame": 10.5,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4687,
-      "score": 49.7,
-      "auto": 2.2,
-      "teleop": 34.6,
-      "endgame": 12.8,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 5837,
-      "score": 47.3,
-      "auto": 0.8,
-      "teleop": 39.8,
-      "endgame": 6.7,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4360,
-      "score": 46.8,
-      "auto": 8.0,
-      "teleop": 30.2,
-      "endgame": 8.5,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2987,
-      "score": 45.6,
-      "auto": 11.6,
-      "teleop": 26.4,
-      "endgame": 7.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2977,
-      "score": 37.5,
-      "auto": 1.0,
-      "teleop": 24.0,
-      "endgame": 12.4,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2470,
-      "score": 34.6,
-      "auto": 3.8,
-      "teleop": 20.9,
-      "endgame": 9.9,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4480,
-      "score": 32.7,
-      "auto": 6.8,
-      "teleop": 16.4,
-      "endgame": 9.4,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 5232,
-      "score": 32.4,
-      "auto": 4.5,
-      "teleop": 18.2,
-      "endgame": 9.7,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
+      "breakdown": 1,
       "comments": ""
     },
     {
       "team": 1816,
-      "score": 31.6,
-      "auto": 2.7,
-      "teleop": 19.6,
-      "endgame": 9.3,
-      "drive_rank": "",
-      "defense_rank": "",
+      "score": 42.3,
+      "auto": 5.1,
+      "teleop": 26.8,
+      "endgame": 10.4,
+      "drive_rank": 3.0,
+      "defense_rank": 3.0,
       "breakdown": 0,
-      "comments": ""
+      "comments": "Good defense and scoring | Good defense and scoring | Good defense and scoring | Good defense and scoring | Good defense and scoring | Good defense and scoring | Good defense and scoring"
     },
     {
-      "team": 7048,
-      "score": 26.1,
-      "auto": 10.9,
-      "teleop": 11.1,
-      "endgame": 4.1,
-      "drive_rank": "",
-      "defense_rank": "",
+      "team": 4480,
+      "score": 30.4,
+      "auto": 6.4,
+      "teleop": 15.2,
+      "endgame": 8.8,
+      "drive_rank": 1.0,
+      "defense_rank": 3.0,
       "breakdown": 0,
-      "comments": ""
+      "comments": "Got stuck on fuel twice"
     },
     {
-      "team": 7677,
-      "score": 24.1,
-      "auto": 4.9,
-      "teleop": 13.6,
-      "endgame": 5.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "team": 5232,
+      "score": 29.3,
+      "auto": 4.4,
+      "teleop": 16.3,
+      "endgame": 8.6,
+      "drive_rank": 2.0,
+      "defense_rank": 2.0,
+      "breakdown": 2,
+      "comments": "No autoPinning penaltyRobot disabled | No autoPinning penaltyRobot disabled"
     },
     {
       "team": 3610,
-      "score": 20.0,
-      "auto": 5.8,
-      "teleop": 12.0,
-      "endgame": 2.1,
-      "drive_rank": "",
-      "defense_rank": "",
+      "score": 25.3,
+      "auto": 6.4,
+      "teleop": 14.7,
+      "endgame": 4.3,
+      "drive_rank": 4.0,
+      "defense_rank": 4.0,
       "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 8516,
-      "score": 17.9,
-      "auto": 0.9,
-      "teleop": 9.3,
-      "endgame": 7.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "comments": " |  |  |  |  | "
     },
     {
       "team": 6628,
-      "score": 17.8,
-      "auto": 6.5,
-      "teleop": 11.2,
+      "score": 16.5,
+      "auto": 6.0,
+      "teleop": 10.4,
       "endgame": 0.0,
-      "drive_rank": "",
+      "drive_rank": 2.0,
       "defense_rank": "",
       "breakdown": 0,
       "comments": ""
     },
     {
-      "team": 5541,
-      "score": 13.2,
-      "auto": 6.2,
-      "teleop": 6.8,
-      "endgame": 0.2,
-      "drive_rank": "",
+      "team": 4238,
+      "score": 12.3,
+      "auto": 2.4,
+      "teleop": 6.4,
+      "endgame": 3.5,
+      "drive_rank": 2.0,
       "defense_rank": "",
       "breakdown": 0,
-      "comments": ""
+      "comments": "Appeared to not be functional "
     },
     {
-      "team": 3023,
-      "score": 13.2,
-      "auto": 4.9,
-      "teleop": 4.9,
-      "endgame": 3.3,
-      "drive_rank": "",
+      "team": 4182,
+      "score": 11.0,
+      "auto": 2.0,
+      "teleop": 5.4,
+      "endgame": 3.7,
+      "drive_rank": 1.0,
       "defense_rank": "",
       "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 3026,
-      "score": 12.7,
-      "auto": 5.5,
-      "teleop": 4.6,
-      "endgame": 2.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 7541,
-      "score": 12.4,
-      "auto": 2.7,
-      "teleop": 6.6,
-      "endgame": 3.1,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 8821,
-      "score": 12.2,
-      "auto": 10.6,
-      "teleop": 1.6,
-      "endgame": 0.0,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4511,
-      "score": 10.4,
-      "auto": 9.6,
-      "teleop": 0.3,
-      "endgame": 0.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "comments": "No auto"
     },
     {
       "team": 3018,
@@ -424,173 +205,41 @@
       "auto": 2.2,
       "teleop": 5.3,
       "endgame": 2.5,
-      "drive_rank": "",
+      "drive_rank": 2.0,
       "defense_rank": "",
       "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2512,
-      "score": 9.6,
-      "auto": 4.7,
-      "teleop": 0.2,
-      "endgame": 4.7,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 8188,
-      "score": 8.3,
-      "auto": 6.7,
-      "teleop": 0.8,
-      "endgame": 0.8,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 6244,
-      "score": 7.0,
-      "auto": 1.5,
-      "teleop": 3.7,
-      "endgame": 1.7,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4238,
-      "score": 6.9,
-      "auto": 1.5,
-      "teleop": 3.7,
-      "endgame": 1.7,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 8372,
-      "score": 6.6,
-      "auto": 1.4,
-      "teleop": 3.5,
-      "endgame": 1.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4632,
-      "score": 6.1,
-      "auto": 1.3,
-      "teleop": 3.3,
-      "endgame": 1.5,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2538,
-      "score": 5.6,
-      "auto": 1.2,
-      "teleop": 3.0,
-      "endgame": 1.4,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 10173,
-      "score": 5.4,
-      "auto": 5.3,
-      "teleop": -0.5,
-      "endgame": 0.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "comments": "Over shot majority of balls "
     },
     {
       "team": 7038,
-      "score": 5.2,
-      "auto": 3.2,
+      "score": 4.9,
+      "auto": 3.0,
       "teleop": 0.7,
       "endgame": 1.3,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 4182,
-      "score": 4.9,
-      "auto": 1.1,
-      "teleop": 2.6,
-      "endgame": 1.2,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 3740,
-      "score": 4.2,
-      "auto": 0.9,
-      "teleop": 2.2,
-      "endgame": 1.0,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 3848,
-      "score": 3.9,
-      "auto": 0.8,
-      "teleop": 2.1,
-      "endgame": 1.0,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 8887,
-      "score": 3.8,
-      "auto": 0.8,
-      "teleop": 2.0,
-      "endgame": 0.9,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "drive_rank": 1.0,
+      "defense_rank": 1.0,
+      "breakdown": 1,
+      "comments": "Intake broke"
     },
     {
       "team": 2511,
-      "score": 3.3,
-      "auto": 0.7,
-      "teleop": 1.8,
-      "endgame": 0.8,
+      "score": 2.2,
+      "auto": 0.9,
+      "teleop": 1.1,
+      "endgame": 0.2,
       "drive_rank": "",
       "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
+      "breakdown": 1,
+      "comments": "Shot one fuel and missed"
     }
   ],
   "event_key": "2026mnmi2",
-  "last_updated": "2026-04-10T02:55:37Z",
+  "last_updated": "2026-04-10T14:50:55Z",
   "blend": {
-    "played_quals": 0,
+    "played_quals": 7,
     "total_quals": 77,
     "epa_pct": 25,
-    "copr_pct": 0,
-    "prior_copr_pct": 75
+    "copr_pct": 7,
+    "prior_copr_pct": 68
   }
 }
