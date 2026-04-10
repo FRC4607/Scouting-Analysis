@@ -2,6 +2,7 @@
   "5": {
     "num": 5,
     "alliance": "RED",
+    "played": false,
     "blueTotal": 133.9,
     "redTotal": 152.0,
     "rows": [
@@ -127,6 +128,7 @@
   "15": {
     "num": 15,
     "alliance": "RED",
+    "played": false,
     "blueTotal": 42.7,
     "redTotal": 191.8,
     "rows": [
@@ -252,6 +254,7 @@
   "22": {
     "num": 22,
     "alliance": "RED",
+    "played": false,
     "blueTotal": 83.3,
     "redTotal": 97.8,
     "rows": [
@@ -377,6 +380,7 @@
   "27": {
     "num": 27,
     "alliance": "BLUE",
+    "played": false,
     "blueTotal": 171.7,
     "redTotal": 101.9,
     "rows": [
@@ -502,6 +506,7 @@
   "35": {
     "num": 35,
     "alliance": "RED",
+    "played": false,
     "blueTotal": 104.8,
     "redTotal": 96.8,
     "rows": [
@@ -627,6 +632,7 @@
   "48": {
     "num": 48,
     "alliance": "BLUE",
+    "played": false,
     "blueTotal": 161.5,
     "redTotal": 117.5,
     "rows": [
@@ -752,6 +758,7 @@
   "57": {
     "num": 57,
     "alliance": "BLUE",
+    "played": false,
     "blueTotal": 119.3,
     "redTotal": 34.3,
     "rows": [
@@ -877,6 +884,7 @@
   "62": {
     "num": 62,
     "alliance": "BLUE",
+    "played": false,
     "blueTotal": 92.5,
     "redTotal": 233.1,
     "rows": [
@@ -1002,6 +1010,7 @@
   "69": {
     "num": 69,
     "alliance": "RED",
+    "played": false,
     "blueTotal": 53.6,
     "redTotal": 116.5,
     "rows": [
@@ -1142,5 +1151,12 @@
       "p75": 0.0
     }
   },
-  "event_key": "2026mnmi2"
+  "event_key": "2026mnmi2",
+  "last_updated": "2026-04-10T02:35:56Z",
+  "blend": {
+    "played_quals": 0,
+    "total_quals": 77,
+    "epa_pct": 100,
+    "copr_pct": 0
+  }
 }
