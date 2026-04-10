@@ -53,6 +53,15 @@
     }
     .refresh-btn:hover { opacity: 0.85; }
 
+    .info-strip {
+      display: none; padding: 5px 16px; gap: 12px; align-items: center; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      border-bottom: 1px solid var(--border); background: var(--surface);
+      letter-spacing: 1px;
+    }
+    .info-strip .sep { color: var(--border); }
+    .info-strip b { color: var(--text); font-weight: normal; }
+
     #status {
       display: flex; align-items: center; justify-content: center; height: 60vh;
       font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px;
@@ -70,6 +79,7 @@
       border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
       animation: fadeUp 0.25s ease both;
     }
+    .match-card.played { opacity: 0.45; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     .match-header {
@@ -78,6 +88,11 @@
       cursor: pointer; user-select: none;
     }
     .match-num { font-family: var(--mono); font-size: 20px; color: var(--accent); min-width: 80px; }
+
+    .played-badge {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+      color: #4ade80; border: 1px solid #4ade80; border-radius: 3px; padding: 1px 6px;
+    }
 
     .alliance-totals { display: flex; gap: 16px; flex: 1; justify-content: center; }
     .alliance-total { display: flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -130,6 +145,14 @@
   <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
 </header>
 
+<div id="info-strip" class="info-strip">
+  <span id="blend-info"></span>
+  <span class="sep">|</span>
+  <span id="quals-info"></span>
+  <span class="sep">|</span>
+  <span>Updated <b id="updated-info">—</b></span>
+</div>
+
 <div id="status"><div class="spinner"></div>LOADING…</div>
 <div id="content" style="display:none"></div>
 
@@ -137,7 +160,7 @@
   let DIST = {};
 
   async function fetchSheetData() {
-    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_planner.json`;
+    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_planner.json?t=${Date.now()}`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -158,28 +181,32 @@
   }
 
   function cellClass(metric, val) {
-      if (metric === 'team') return 'team-val';
-      const n = parseFloat(val);
-      const d = DIST[metric];
-      if (!d || isNaN(n)) return '';
-      if (metric === 'fouls' || metric === 'dpr') {
-          if (n <= d.p25) return 'c-green';
-          if (n >= d.p75) return 'c-red';
-          return 'c-mid';
-      }
-      if (n >= d.p75) return 'c-green';
-      if (n <= d.p25) return 'c-red';
+    if (metric === 'team') return 'team-val';
+    const n = parseFloat(val);
+    const d = DIST[metric];
+    if (!d || isNaN(n)) return '';
+    // Lower is better for fouls, dpr, drive, defense
+    if (['fouls', 'dpr', 'drive', 'defense'].includes(metric)) {
+      if (n <= d.p25) return 'c-green';
+      if (n >= d.p75) return 'c-red';
       return 'c-mid';
+    }
+    if (n >= d.p75) return 'c-green';
+    if (n <= d.p25) return 'c-red';
+    return 'c-mid';
   }
 
   function renderMatch(m, idx) {
     const allianceColor = m.alliance === 'BLUE' ? 'var(--blue)' : 'var(--red)';
     const allianceBg    = m.alliance === 'BLUE' ? '#0d2040' : '#2a0d0d';
+    const playedClass   = m.played ? 'played' : '';
+    const playedBadge   = m.played ? '<span class="played-badge">✓ PLAYED</span>' : '';
 
     return `
-      <div class="match-card" id="mc-${m.num}" style="animation-delay:${idx * 0.02}s">
+      <div class="match-card ${playedClass}" id="mc-${m.num}" style="animation-delay:${idx * 0.02}s">
         <div class="match-header" onclick="toggle('mc-${m.num}')">
           <div class="match-num">Q${m.num}</div>
+          ${playedBadge}
           <div style="font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;background:${allianceBg};color:${allianceColor};letter-spacing:2px;">${m.alliance}</div>
           <div class="alliance-totals">
             <div class="alliance-total blue"><span class="value">${parseFloat(m.blueTotal).toFixed(1)}</span></div>
@@ -226,21 +253,40 @@
   async function loadData() {
     const status  = document.getElementById('status');
     const content = document.getElementById('content');
+    const strip   = document.getElementById('info-strip');
     status.style.display  = 'flex';
     content.style.display = 'none';
+    strip.style.display   = 'none';
     status.innerHTML = '<div class="spinner"></div>LOADING…';
 
     try {
       const data    = await fetchSheetData();
       DIST = data.distribution || {};
-      document.getElementById('page-title').textContent = `Match Planner — ${data.event_key || EVENT_KEY}`;
+      document.getElementById('page-title').textContent = `Match Planner — ${data.event_key || '—'}`;
       const matches = parseMatches(data);
 
       if (!matches.length) throw new Error('No match data found');
 
+      // Populate info strip
+      if (data.blend) {
+        document.getElementById('blend-info').innerHTML =
+          `EPA <b>${data.blend.epa_pct}%</b> · COPR <b>${data.blend.copr_pct}%</b>`;
+        document.getElementById('quals-info').innerHTML =
+          `<b>${data.blend.played_quals}</b>/<b>${data.blend.total_quals}</b> quals played`;
+      }
+      if (data.last_updated) {
+        document.getElementById('updated-info').textContent =
+          new Date(data.last_updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      strip.style.display = 'flex';
+
       status.style.display  = 'none';
       content.style.display = 'block';
       content.innerHTML = matches.map((m, i) => renderMatch(m, i)).join('');
+
+      // Auto-open the next unplayed match
+      const next = matches.find(m => !m.played);
+      if (next) toggle(`mc-${next.num}`);
     } catch (err) {
       console.error(err);
       status.innerHTML = `<span style="color:#f87171">⚠ ${err.message}</span>`;

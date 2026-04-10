@@ -2,7 +2,9 @@
 
 import base64
 import json
+import math
 from argparse import ArgumentParser
+from datetime import datetime, timezone
 from os import environ
 
 import pandas as pd
@@ -14,6 +16,17 @@ from .frc2026_picklist_analysis import FRC2026PicklistAnalysis
 from .sb import SB
 from .sdb import SDB
 from .tba import TBA
+
+
+def _sanitize(obj):
+    """Recursively replace float NaN with None so json.dumps produces valid JSON."""
+    if isinstance(obj, float) and math.isnan(obj):
+        return None
+    if isinstance(obj, dict):
+        return {k: _sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize(v) for v in obj]
+    return obj
 
 
 def push_to_github(data: dict, base_filename: str) -> None:
@@ -37,7 +50,7 @@ def push_to_github(data: dict, base_filename: str) -> None:
     resp = requests.get(api_url, headers=headers)
     sha = resp.json().get("sha") if resp.status_code == 200 else None
 
-    content = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
+    content = base64.b64encode(json.dumps(_sanitize(data), indent=2).encode()).decode()
 
     payload = {
         "message": f"Update {filename} data",
@@ -85,6 +98,12 @@ def main():
         teams_df = tba.get_event_team_list(args.event_key, force=True)
         scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
 
+        # No match scouting yet — seed placeholder rows so EPA/COPR data still flows through
+        if scouting_df.empty and not teams_df.empty:
+            scouting_df = teams_df[["team_number"]].assign(
+                auto_fuel=0, cycles=0, drive_rank=pd.NA, defense_rank=pd.NA, breakdown=0, comments=""
+            )
+
     # ------------------------------------------------------------------ #
     # TBA match breakdowns, COPRs, and OPRs                              #
     # ------------------------------------------------------------------ #
@@ -107,6 +126,18 @@ def main():
     # Match planner                                                        #
     # ------------------------------------------------------------------ #
     matches_df = tba.get_event_matches(args.event_key, force=True)
+
+    # Determine which qual matches have already been played
+    played_match_nums: set[int] = set()
+    if (
+        not match_breakdowns_df.empty
+        and "comp_level" in match_breakdowns_df.columns
+        and "match_number" in match_breakdowns_df.columns
+    ):
+        played_rows = match_breakdowns_df[
+            (match_breakdowns_df["comp_level"] == "qm") & match_breakdowns_df["score_breakdown"].notna()
+        ]
+        played_match_nums = set(played_rows["match_number"].astype(int))
 
     matches = {}
     for _, row in matches_df.iterrows():
@@ -198,6 +229,7 @@ def main():
                 match_data[current_match] = {
                     "num": num,
                     "alliance": alliance,
+                    "played": num in played_match_nums,
                     "blueTotal": float(row.iloc[3]) if row.iloc[3] != "" else 0,
                     "redTotal": float(row.iloc[7]) if row.iloc[7] != "" else 0,
                     "rows": [],
@@ -231,13 +263,25 @@ def main():
                 vals = pd.to_numeric(oprs_df[col], errors="coerce").dropna()
             else:
                 continue
+            if vals.empty:
+                continue
             distribution[metric] = {
                 "p25": round(float(vals.quantile(0.25)), 1),
                 "p75": round(float(vals.quantile(0.75)), 1),
             }
 
+        last_updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        blend = {
+            "played_quals": rpa.played_quals,
+            "total_quals": rpa.total_quals,
+            "epa_pct": round(rpa.epa_weight * 100),
+            "copr_pct": round(rpa.copr_weight * 100),
+        }
+
         match_data["distribution"] = distribution
         match_data["event_key"] = args.event_key
+        match_data["last_updated"] = last_updated
+        match_data["blend"] = blend
 
         # Push event-specific JSON
         push_to_github(match_data, f"{args.event_key}_planner")
@@ -251,7 +295,7 @@ def main():
                     "score": round(float(row["score"]), 1),
                     "auto": round(float(row["auto"]), 1),
                     "teleop": round(float(row["teleop"]), 1),
-                    "endgame": round(float(row["endgame"]), 1),
+                    "endgame": round(float(row["endgame"]), 1) if pd.notna(row["endgame"]) else 0,
                     "drive_rank": round(float(row["drive_rank"]), 1) if pd.notna(row["drive_rank"]) else "",
                     "defense_rank": round(float(row["defense_rank"]), 1) if pd.notna(row["defense_rank"]) else "",
                     "breakdown": int(row["breakdown"]) if pd.notna(row["breakdown"]) else 0,
@@ -260,12 +304,13 @@ def main():
             )
 
         picklist_data["event_key"] = args.event_key
+        picklist_data["last_updated"] = last_updated
+        picklist_data["blend"] = blend
 
         # Push event-specific picklist JSON
         push_to_github(picklist_data, f"{args.event_key}_picklist")
 
-        # Push latest picklist JSON
-        # Only push latest when --post is specified
+        # Push latest JSON — only when --post is specified
         if args.post:
             push_to_github(match_data, "latest_planner")
             push_to_github(picklist_data, "latest_picklist")

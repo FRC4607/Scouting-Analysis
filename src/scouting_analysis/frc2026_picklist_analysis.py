@@ -9,17 +9,8 @@ import yaml
 _AUTO_CLIMB_PTS = {"Level1": 15, "Level2": 15, "Level3": 15, "None": 0}
 _ENDGAME_CLIMB_PTS = {"Level1": 10, "Level2": 20, "Level3": 30, "None": 0}
 
-# ---------------------------------------------------------------------------
-# Weights
-# ---------------------------------------------------------------------------
-_AUTO_SCOUTING_WEIGHT = 0.0
-_AUTO_COPR_WEIGHT = 0.75
-_AUTO_EPA_WEIGHT = 0.25
-_TELEOP_SCOUTING_WEIGHT = 0.0
-_TELEOP_COPR_WEIGHT = 0.75
-_TELEOP_EPA_WEIGHT = 0.25
-_ENDGAME_TBA_WEIGHT = 0.75
-_ENDGAME_EPA_WEIGHT = 0.25
+# Maximum COPR/TBA weight once the event is complete
+_MAX_COPR_WEIGHT = 0.75
 
 
 class FRC2026PicklistAnalysis:
@@ -48,6 +39,24 @@ class FRC2026PicklistAnalysis:
         self.pits_df = pits_df
         self.coprs_df = coprs_df
         self.epa_df = epa_df
+
+        # Dynamic weights: blend from 100% EPA → 75% COPR as quals are played
+        if not match_breakdowns_df.empty and "comp_level" in match_breakdowns_df.columns:
+            quals = match_breakdowns_df[match_breakdowns_df["comp_level"] == "qm"]
+            total = len(quals)
+            played = int(quals["score_breakdown"].notna().sum())
+        else:
+            total, played = 0, 0
+
+        alpha = played / total if total > 0 else 0.0
+        self.played_quals = played
+        self.total_quals = total
+        self.copr_weight = alpha * _MAX_COPR_WEIGHT
+        self.epa_weight = 1.0 - self.copr_weight
+        print(
+            f"\nMatch progress: {played}/{total} quals played (alpha={alpha:.2f})"
+            f" → COPR={self.copr_weight:.2f}, EPA={self.epa_weight:.2f}\n"
+        )
 
         self.auto_climb_df = (
             self._get_auto_climb_scores(match_breakdowns_df) if not match_breakdowns_df.empty else pd.DataFrame()
@@ -130,7 +139,6 @@ class FRC2026PicklistAnalysis:
 
         # Scouting
         df["scouted_auto"] = pd.to_numeric(df["auto_fuel"], errors="coerce").fillna(0)
-        scouting_mean = df.groupby("team_number")["scouted_auto"].transform("mean")
 
         # COPR
         copr_auto = pd.Series(0.0, index=df.index)
@@ -158,9 +166,7 @@ class FRC2026PicklistAnalysis:
             epa_auto = df["auto_epa"].fillna(0)
 
         # Weighted blend
-        df["total_auto_points"] = (
-            _AUTO_SCOUTING_WEIGHT * scouting_mean + _AUTO_COPR_WEIGHT * copr_auto + _AUTO_EPA_WEIGHT * epa_auto
-        )
+        df["total_auto_points"] = self.copr_weight * copr_auto + self.epa_weight * epa_auto
 
         # Debug
         print("\n--- Auto Summary Debug ---")
@@ -172,7 +178,8 @@ class FRC2026PicklistAnalysis:
                 "total": df.groupby("team_number")["total_auto_points"].first(),
             }
         ).reset_index()
-        sample_teams = [4607] + list(debug_df[debug_df["team_number"] != 4607]["team_number"].sample(9).values)
+        others = debug_df[debug_df["team_number"] != 4607]["team_number"]
+        sample_teams = [4607] + list(others.sample(min(9, len(others))).values)
         print(debug_df[debug_df["team_number"].isin(sample_teams)].set_index("team_number").T.to_string())
         print("--- End Auto Summary Debug ---\n")
 
@@ -202,7 +209,6 @@ class FRC2026PicklistAnalysis:
             df["scouted_teleop"] = pd.to_numeric(df["cycles"], errors="coerce").fillna(0) * df["hopper_size"].fillna(0)
         else:
             df["scouted_teleop"] = 0
-        scouting_mean = df.groupby("team_number")["scouted_teleop"].transform("mean")
 
         # COPR
         copr_teleop = pd.Series(0.0, index=df.index)
@@ -222,11 +228,7 @@ class FRC2026PicklistAnalysis:
             epa_teleop = df["teleop_epa"].fillna(0)
 
         # Weighted blend
-        df["total_teleop_points"] = (
-            _TELEOP_SCOUTING_WEIGHT * scouting_mean
-            + _TELEOP_COPR_WEIGHT * copr_teleop
-            + _TELEOP_EPA_WEIGHT * epa_teleop
-        )
+        df["total_teleop_points"] = self.copr_weight * copr_teleop + self.epa_weight * epa_teleop
 
         # Debug
         print("\n--- Teleop Summary Debug ---")
@@ -240,7 +242,8 @@ class FRC2026PicklistAnalysis:
                 "total": df.groupby("team_number")["total_teleop_points"].first(),
             }
         ).reset_index()
-        sample_teams = [4607] + list(debug_df[debug_df["team_number"] != 4607]["team_number"].sample(9).values)
+        others = debug_df[debug_df["team_number"] != 4607]["team_number"]
+        sample_teams = [4607] + list(others.sample(min(9, len(others))).values)
         print(debug_df[debug_df["team_number"].isin(sample_teams)].set_index("team_number").T.to_string())
         print("--- End Teleop Summary Debug ---\n")
 
@@ -282,7 +285,7 @@ class FRC2026PicklistAnalysis:
             epa_endgame = df_merged["endgame_epa"].fillna(0).clip(lower=0)
 
         # Weighted blend
-        df_merged["total_endgame_points"] = _ENDGAME_TBA_WEIGHT * tba_endgame + _ENDGAME_EPA_WEIGHT * epa_endgame
+        df_merged["total_endgame_points"] = self.copr_weight * tba_endgame + self.epa_weight * epa_endgame
 
         # Debug
         print("\n--- Endgame Summary Debug ---")
@@ -298,7 +301,8 @@ class FRC2026PicklistAnalysis:
                 "total": df_merged.groupby("team_number")["total_endgame_points"].first(),
             }
         ).reset_index()
-        sample_teams = [4607] + list(debug_df[debug_df["team_number"] != 4607]["team_number"].sample(9).values)
+        others = debug_df[debug_df["team_number"] != 4607]["team_number"]
+        sample_teams = [4607] + list(others.sample(min(9, len(others))).values)
         print(debug_df[debug_df["team_number"].isin(sample_teams)].set_index("team_number").T.to_string())
         print("--- End Endgame Summary Debug ---\n")
 
@@ -374,6 +378,8 @@ class FRC2026PicklistAnalysis:
                         }
                     )
 
+        if not records:
+            return pd.DataFrame(columns=["team_number", "auto_climb_score"])
         climb_df = pd.DataFrame(records)
         climb_df["team_number"] = climb_df["team_number"].astype("Int64")
         return climb_df.groupby("team_number")["auto_climb_score"].mean().reset_index()
@@ -415,6 +421,8 @@ class FRC2026PicklistAnalysis:
                         }
                     )
 
+        if not records:
+            return pd.DataFrame(columns=["team_number", "endgame_climb_score"])
         climb_df = pd.DataFrame(records)
         climb_df["team_number"] = climb_df["team_number"].astype("Int64")
         return climb_df.groupby("team_number")["endgame_climb_score"].mean().reset_index()
