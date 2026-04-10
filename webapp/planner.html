@@ -134,6 +134,11 @@
     .c-mid    { color: #64748b; }
     .c-red    { color: #f87171; }
     .empty    { color: #2d3748; }
+    .first-event-badge {
+      font-size: 8px; letter-spacing: 1px; vertical-align: middle;
+      color: #facc15; border: 1px solid #facc15; border-radius: 3px;
+      padding: 0px 4px; margin-left: 4px;
+    }
   </style>
 </head>
 <body>
@@ -158,6 +163,7 @@
 
 <script>
   let DIST = {};
+  let FIRST_EVENT_TEAMS = new Set();
 
   async function fetchSheetData() {
     const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_planner.json?t=${Date.now()}`;
@@ -230,12 +236,17 @@
             </thead>
             <tbody>${m.rows.map(r => {
               const cls = r.metric.toLowerCase();
-              const blueCells = r.blue.map(v =>
-                `<td class="blue-cell"><span class="${cellClass(cls, v)}">${fmt(v)}</span></td>`
-              ).join('');
-              const redCells = r.red.map(v =>
-                `<td class="red-cell"><span class="${cellClass(cls, v)}">${fmt(v)}</span></td>`
-              ).join('');
+              const isTeamRow = cls === 'team';
+              const blueCells = r.blue.map(v => {
+                const badge = isTeamRow && FIRST_EVENT_TEAMS.has(parseInt(v))
+                  ? '<span class="first-event-badge">1st</span>' : '';
+                return `<td class="blue-cell"><span class="${cellClass(cls, v)}">${fmt(v)}${badge}</span></td>`;
+              }).join('');
+              const redCells = r.red.map(v => {
+                const badge = isTeamRow && FIRST_EVENT_TEAMS.has(parseInt(v))
+                  ? '<span class="first-event-badge">1st</span>' : '';
+                return `<td class="red-cell"><span class="${cellClass(cls, v)}">${fmt(v)}${badge}</span></td>`;
+              }).join('');
               return `<tr class="${cls}-row">
                 <td class="metric">${cls}</td>
                 ${blueCells}
@@ -262,6 +273,7 @@
     try {
       const data    = await fetchSheetData();
       DIST = data.distribution || {};
+      FIRST_EVENT_TEAMS = new Set(data.first_event_teams || []);
       document.getElementById('page-title').textContent = `Match Planner — ${data.event_key || '—'}`;
       const matches = parseMatches(data);
 

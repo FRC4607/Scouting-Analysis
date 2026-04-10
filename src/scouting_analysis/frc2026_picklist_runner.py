@@ -278,6 +278,13 @@ def main():
                 "p75": round(float(vals.quantile(0.75)), 1),
             }
 
+        # Teams whose prior_coprs_df has no entry are at their first event
+        all_team_nums = set(picklist_df["team"].astype(int))
+        teams_with_prior = (
+            {int(k.replace("frc", "")) for k in prior_coprs_df.index} if not prior_coprs_df.empty else set()
+        )
+        first_event_teams = sorted(all_team_nums - teams_with_prior)
+
         last_updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         blend = {
             "played_quals": rpa.played_quals,
@@ -291,6 +298,7 @@ def main():
         match_data["event_key"] = args.event_key
         match_data["last_updated"] = last_updated
         match_data["blend"] = blend
+        match_data["first_event_teams"] = first_event_teams
 
         # Push event-specific JSON
         push_to_github(match_data, f"{args.event_key}_planner")
