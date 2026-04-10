@@ -580,5 +580,12 @@
       "comments": ""
     }
   ],
-  "event_key": "2026mnmi2"
+  "event_key": "2026mnmi2",
+  "last_updated": "2026-04-10T02:35:56Z",
+  "blend": {
+    "played_quals": 0,
+    "total_quals": 77,
+    "epa_pct": 100,
+    "copr_pct": 0
+  }
 }
