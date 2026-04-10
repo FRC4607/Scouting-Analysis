@@ -117,9 +117,17 @@ def main():
     epa_df = sb.get_event_team_stats(args.event_key, force=True)
 
     # ------------------------------------------------------------------ #
+    # Prior event COPR                                                     #
+    # ------------------------------------------------------------------ #
+    year = int(args.event_key[:4])
+    prior_coprs_df = tba.get_prior_event_coprs(args.event_key, year)
+
+    # ------------------------------------------------------------------ #
     # Picklist analysis                                                    #
     # ------------------------------------------------------------------ #
-    rpa = FRC2026PicklistAnalysis(scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df, epa_df)
+    rpa = FRC2026PicklistAnalysis(
+        scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df, epa_df, prior_coprs_df
+    )
     picklist_df = rpa.get_picklist_summary()
 
     # ------------------------------------------------------------------ #
@@ -275,7 +283,8 @@ def main():
             "played_quals": rpa.played_quals,
             "total_quals": rpa.total_quals,
             "epa_pct": round(rpa.epa_weight * 100),
-            "copr_pct": round(rpa.copr_weight * 100),
+            "copr_pct": round(rpa.current_copr_weight * 100),
+            "prior_copr_pct": round(rpa.prior_copr_weight * 100),
         }
 
         match_data["distribution"] = distribution

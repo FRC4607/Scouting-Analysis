@@ -132,9 +132,100 @@ class TBA:
         logger.info("Fetched and cached '%s'.", filename)
         return df
 
+    def get_prior_event_coprs(self, event_key: str, year: int) -> pd.DataFrame:
+        """Build a COPR DataFrame using each team's most recent prior-event COPRs.
+
+        For each team at *event_key*, finds the most recent event they played
+        before the current one, fetches that event's COPRs, and assembles a
+        combined DataFrame in the same format as get_event_coprs().
+
+        Prior-event data is historical and never force-refreshed.
+
+        Args:
+            event_key (str): The current event key.
+            year (int): The competition year.
+
+        Returns:
+            pd.DataFrame: COPR data indexed by team key (e.g. 'frc4607').
+                          Empty if no prior-event data is available.
+        """
+        current_start = self._get_event_start_date(event_key)
+        if not current_start:
+            return pd.DataFrame()
+
+        teams_df = self.get_event_team_list(event_key, force=False)
+        if teams_df.empty or "team_number" not in teams_df.columns:
+            return pd.DataFrame()
+
+        # Map each team to their most recent prior event
+        team_prior: dict[str, str] = {}
+        for team_num in teams_df["team_number"]:
+            team_key = f"frc{int(team_num)}"
+            events_df = self._get_cached(
+                filename=f"team_events_{team_key}_{year}.csv",
+                endpoint=f"/team/{team_key}/events/{year}/simple",
+                force=False,
+            )
+            if events_df.empty or "start_date" not in events_df.columns or "key" not in events_df.columns:
+                continue
+            prior = events_df[events_df["start_date"] < current_start]
+            if prior.empty:
+                continue
+            team_prior[team_key] = prior.loc[prior["start_date"].idxmax(), "key"]
+
+        if not team_prior:
+            return pd.DataFrame()
+
+        # Fetch COPRs once per unique prior event, then extract each team's row
+        event_coprs_cache: dict[str, pd.DataFrame] = {}
+        rows: dict[str, dict] = {}
+        for team_key, prior_event_key in team_prior.items():
+            if prior_event_key not in event_coprs_cache:
+                try:
+                    event_coprs_cache[prior_event_key] = self.get_event_coprs(prior_event_key, force=False)
+                except Exception:
+                    event_coprs_cache[prior_event_key] = pd.DataFrame()
+            coprs = event_coprs_cache[prior_event_key]
+            if not coprs.empty and team_key in coprs.index:
+                rows[team_key] = coprs.loc[team_key].to_dict()
+
+        if not rows:
+            return pd.DataFrame()
+
+        result = pd.DataFrame.from_dict(rows, orient="index")
+        result.index.name = "team_key"
+        logger.info("Built prior-event COPRs for %d/%d teams.", len(rows), len(teams_df))
+        return result
+
     # ------------------------------------------------------------------ #
     # Private helpers                                                    #
     # ------------------------------------------------------------------ #
+
+    def _get_event_start_date(self, event_key: str) -> str:
+        """Return the start_date string for an event, fetching from TBA if needed.
+
+        Args:
+            event_key (str): The event key.
+
+        Returns:
+            str: ISO date string (e.g. '2026-03-15'), or '' on failure.
+        """
+        filename = f"event_simple_{event_key}.csv"
+        path = Path(filename)
+        if path.is_file():
+            df = pd.read_csv(path)
+            return str(df.loc[0, "start_date"]) if "start_date" in df.columns else ""
+
+        url = TBA_BASE + f"/event/{event_key}/simple"
+        try:
+            resp = self._session.get(url=url, headers=self._headers)
+            resp.raise_for_status()
+            data = resp.json()
+            pd.DataFrame([data]).to_csv(path, index=False)
+            return str(data.get("start_date", ""))
+        except Exception as e:
+            logger.error("Failed to fetch event info for '%s': %s", event_key, e)
+            return ""
 
     def _get_cached(self, filename: str, endpoint: str, force: bool) -> pd.DataFrame:
         """Return cached CSV data if available, otherwise fetch from TBA and cache it.

@@ -33,14 +33,18 @@ class FRC2026PicklistAnalysis:
         pits_df: pd.DataFrame,
         coprs_df: pd.DataFrame,
         epa_df: pd.DataFrame = pd.DataFrame(),
+        prior_coprs_df: pd.DataFrame = pd.DataFrame(),
     ) -> None:
         self.scouting_df = scouting_df
         self.metric = metric
         self.pits_df = pits_df
         self.coprs_df = coprs_df
         self.epa_df = epa_df
+        self.prior_coprs_df = prior_coprs_df
 
-        # Dynamic weights: blend from 100% EPA → 75% COPR as quals are played
+        # Dynamic weights based on quals played.
+        # With prior COPR: EPA fixed at 25%, prior→current COPR share the remaining 75%.
+        # Without prior COPR: falls back to original EPA-only start (EPA fills the gap).
         if not match_breakdowns_df.empty and "comp_level" in match_breakdowns_df.columns:
             quals = match_breakdowns_df[match_breakdowns_df["comp_level"] == "qm"]
             total = len(quals)
@@ -51,11 +55,20 @@ class FRC2026PicklistAnalysis:
         alpha = played / total if total > 0 else 0.0
         self.played_quals = played
         self.total_quals = total
-        self.copr_weight = alpha * _MAX_COPR_WEIGHT
-        self.epa_weight = 1.0 - self.copr_weight
+        self.current_copr_weight = alpha * _MAX_COPR_WEIGHT
+
+        if not prior_coprs_df.empty:
+            self.prior_copr_weight = (1.0 - alpha) * _MAX_COPR_WEIGHT
+            self.epa_weight = 1.0 - _MAX_COPR_WEIGHT  # constant 25%
+        else:
+            self.prior_copr_weight = 0.0
+            self.epa_weight = 1.0 - self.current_copr_weight
+
         print(
             f"\nMatch progress: {played}/{total} quals played (alpha={alpha:.2f})"
-            f" → COPR={self.copr_weight:.2f}, EPA={self.epa_weight:.2f}\n"
+            f" → current_copr={self.current_copr_weight:.2f},"
+            f" prior_copr={self.prior_copr_weight:.2f},"
+            f" epa={self.epa_weight:.2f}\n"
         )
 
         self.auto_climb_df = (
@@ -140,7 +153,7 @@ class FRC2026PicklistAnalysis:
         # Scouting
         df["scouted_auto"] = pd.to_numeric(df["auto_fuel"], errors="coerce").fillna(0)
 
-        # COPR
+        # Current event COPR
         copr_auto = pd.Series(0.0, index=df.index)
         if not self.coprs_df.empty and "Hub Auto Fuel Count" in self.coprs_df.columns:
             coprs = self.coprs_df[["Hub Auto Fuel Count"]].copy()
@@ -157,6 +170,15 @@ class FRC2026PicklistAnalysis:
             df["total_copr_auto"] = df["copr_auto_fuel"].fillna(0).clip(lower=0) + df["auto_climb_score"]
             copr_auto = df["total_copr_auto"]
 
+        # Prior event COPR
+        prior_copr_auto = pd.Series(0.0, index=df.index)
+        if not self.prior_coprs_df.empty and "Hub Auto Fuel Count" in self.prior_coprs_df.columns:
+            prior = self.prior_coprs_df[["Hub Auto Fuel Count"]].copy()
+            prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
+            prior.rename(columns={"Hub Auto Fuel Count": "prior_copr_auto_fuel"}, inplace=True)
+            df = df.merge(prior[["team_number", "prior_copr_auto_fuel"]], on="team_number", how="left")
+            prior_copr_auto = df["prior_copr_auto_fuel"].fillna(0).clip(lower=0)
+
         # EPA
         epa_auto = pd.Series(0.0, index=df.index)
         if not self.epa_df.empty and "auto_epa" in self.epa_df.columns:
@@ -166,7 +188,9 @@ class FRC2026PicklistAnalysis:
             epa_auto = df["auto_epa"].fillna(0)
 
         # Weighted blend
-        df["total_auto_points"] = self.copr_weight * copr_auto + self.epa_weight * epa_auto
+        df["total_auto_points"] = (
+            self.current_copr_weight * copr_auto + self.prior_copr_weight * prior_copr_auto + self.epa_weight * epa_auto
+        )
 
         # Debug
         print("\n--- Auto Summary Debug ---")
@@ -210,7 +234,7 @@ class FRC2026PicklistAnalysis:
         else:
             df["scouted_teleop"] = 0
 
-        # COPR
+        # Current event COPR
         copr_teleop = pd.Series(0.0, index=df.index)
         if not self.coprs_df.empty and "Hub Teleop Fuel Count" in self.coprs_df.columns:
             coprs = self.coprs_df[["Hub Teleop Fuel Count"]].copy()
@@ -218,6 +242,15 @@ class FRC2026PicklistAnalysis:
             coprs["total_copr_teleop"] = coprs["Hub Teleop Fuel Count"]
             df = df.merge(coprs[["team_number", "total_copr_teleop"]], on="team_number", how="left")
             copr_teleop = df["total_copr_teleop"].fillna(0).clip(lower=0)
+
+        # Prior event COPR
+        prior_copr_teleop = pd.Series(0.0, index=df.index)
+        if not self.prior_coprs_df.empty and "Hub Teleop Fuel Count" in self.prior_coprs_df.columns:
+            prior = self.prior_coprs_df[["Hub Teleop Fuel Count"]].copy()
+            prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
+            prior.rename(columns={"Hub Teleop Fuel Count": "prior_copr_teleop"}, inplace=True)
+            df = df.merge(prior[["team_number", "prior_copr_teleop"]], on="team_number", how="left")
+            prior_copr_teleop = df["prior_copr_teleop"].fillna(0).clip(lower=0)
 
         # EPA
         epa_teleop = pd.Series(0.0, index=df.index)
@@ -228,7 +261,11 @@ class FRC2026PicklistAnalysis:
             epa_teleop = df["teleop_epa"].fillna(0)
 
         # Weighted blend
-        df["total_teleop_points"] = self.copr_weight * copr_teleop + self.epa_weight * epa_teleop
+        df["total_teleop_points"] = (
+            self.current_copr_weight * copr_teleop
+            + self.prior_copr_weight * prior_copr_teleop
+            + self.epa_weight * epa_teleop
+        )
 
         # Debug
         print("\n--- Teleop Summary Debug ---")
@@ -259,22 +296,36 @@ class FRC2026PicklistAnalysis:
         Returns:
             pd.DataFrame: Stats summary keyed by team_number.
         """
-        if not self.endgame_climb_df.empty:
-            df_merged = self.endgame_climb_df.rename(columns={"endgame_climb_score": "climb_score"}).copy()
-        else:
-            df_merged = pd.DataFrame(columns=["team_number", "climb_score"])
+        # Base on all teams from scouting_df so prior COPR can populate even with no climb data
+        df_merged = self.scouting_df[["team_number"]].drop_duplicates().copy()
+        df_merged["team_number"] = df_merged["team_number"].astype("Int64")
 
-        # COPR Hub Endgame Fuel Count
+        # Current event climb scores
+        if not self.endgame_climb_df.empty:
+            climb = self.endgame_climb_df.rename(columns={"endgame_climb_score": "climb_score"})
+            df_merged = df_merged.merge(climb, on="team_number", how="left")
+        df_merged["climb_score"] = df_merged.get("climb_score", pd.Series(0.0, index=df_merged.index)).fillna(0)
+
+        # Current event COPR Hub Endgame Fuel Count
         if not self.coprs_df.empty and "Hub Endgame Fuel Count" in self.coprs_df.columns:
             coprs = self.coprs_df[["Hub Endgame Fuel Count"]].copy()
             coprs["team_number"] = coprs.index.str.replace("frc", "").astype("Int64")
             coprs.rename(columns={"Hub Endgame Fuel Count": "copr_endgame_fuel"}, inplace=True)
             df_merged = df_merged.merge(coprs[["team_number", "copr_endgame_fuel"]], on="team_number", how="left")
-            df_merged["copr_endgame_fuel"] = df_merged["copr_endgame_fuel"].fillna(0).clip(lower=0)
-        else:
-            df_merged["copr_endgame_fuel"] = 0.0
+        df_merged["copr_endgame_fuel"] = (
+            df_merged.get("copr_endgame_fuel", pd.Series(0.0, index=df_merged.index)).fillna(0).clip(lower=0)
+        )
 
-        tba_endgame = df_merged["climb_score"] + df_merged["copr_endgame_fuel"]
+        current_tba_endgame = df_merged["climb_score"] + df_merged["copr_endgame_fuel"]
+
+        # Prior event COPR Hub Endgame Fuel Count (no climb available for prior events)
+        prior_endgame = pd.Series(0.0, index=df_merged.index)
+        if not self.prior_coprs_df.empty and "Hub Endgame Fuel Count" in self.prior_coprs_df.columns:
+            prior = self.prior_coprs_df[["Hub Endgame Fuel Count"]].copy()
+            prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
+            prior.rename(columns={"Hub Endgame Fuel Count": "prior_endgame_fuel"}, inplace=True)
+            df_merged = df_merged.merge(prior[["team_number", "prior_endgame_fuel"]], on="team_number", how="left")
+            prior_endgame = df_merged["prior_endgame_fuel"].fillna(0).clip(lower=0)
 
         # EPA
         epa_endgame = pd.Series(0.0, index=df_merged.index)
@@ -285,7 +336,11 @@ class FRC2026PicklistAnalysis:
             epa_endgame = df_merged["endgame_epa"].fillna(0).clip(lower=0)
 
         # Weighted blend
-        df_merged["total_endgame_points"] = self.copr_weight * tba_endgame + self.epa_weight * epa_endgame
+        df_merged["total_endgame_points"] = (
+            self.current_copr_weight * current_tba_endgame
+            + self.prior_copr_weight * prior_endgame
+            + self.epa_weight * epa_endgame
+        )
 
         # Debug
         print("\n--- Endgame Summary Debug ---")

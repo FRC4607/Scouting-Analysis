@@ -303,10 +303,12 @@
 
       // Populate info strip
       if (data.blend) {
+        const b = data.blend;
+        const priorStr = b.prior_copr_pct > 0 ? ` · Prior <b>${b.prior_copr_pct}%</b>` : '';
         document.getElementById('blend-info').innerHTML =
-          `EPA <b>${data.blend.epa_pct}%</b> · COPR <b>${data.blend.copr_pct}%</b>`;
+          `EPA <b>${b.epa_pct}%</b> · COPR <b>${b.copr_pct}%</b>${priorStr}`;
         document.getElementById('quals-info').innerHTML =
-          `<b>${data.blend.played_quals}</b>/<b>${data.blend.total_quals}</b> quals played`;
+          `<b>${b.played_quals}</b>/<b>${b.total_quals}</b> quals played`;
       }
       if (data.last_updated) {
         document.getElementById('updated-info').textContent =
