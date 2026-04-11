@@ -77,7 +77,7 @@ def main():
         "--post",
         required=False,
         action="store_true",
-        help="Push latest JSON files to GitHub and trigger Slack notifications",
+        help="Push latest JSON files to GitHub",
     )
     parser.add_argument("--teams", required=False, type=int, nargs="+", help="List of specific teams to analyze")
     args = parser.parse_args()
@@ -96,13 +96,12 @@ def main():
         sdb_event_df = sdb.get_event_scouting_data(args.event_key, force=True)
         pits_df = sdb.get_event_pits_data(args.event_key, force=True)
         teams_df = tba.get_event_team_list(args.event_key, force=True)
-        scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number")
+        scouting_df = pd.merge(teams_df["team_number"], sdb_event_df, on="team_number", how="left")
 
-        # No match scouting yet — seed placeholder rows so EPA/COPR data still flows through
-        if scouting_df.empty and not teams_df.empty:
-            scouting_df = teams_df[["team_number"]].assign(
-                auto_fuel=0, cycles=0, drive_rank=pd.NA, defense_rank=pd.NA, breakdown=0, comments=""
-            )
+        # If scouting DB returned no columns (empty DB), add required columns
+        for col in ["auto_cycles", "teleop_cycles", "driver_rank", "defense_rank", "breakdown", "comments"]:
+            if col not in scouting_df.columns:
+                scouting_df[col] = pd.NA
 
     # ------------------------------------------------------------------ #
     # TBA match breakdowns, COPRs, and OPRs                              #

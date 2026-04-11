@@ -151,7 +151,7 @@ class FRC2026PicklistAnalysis:
         df["team_number"] = df["team_number"].astype("Int64")
 
         # Scouting
-        df["scouted_auto"] = pd.to_numeric(df["auto_fuel"], errors="coerce").fillna(0)
+        df["scouted_auto"] = pd.to_numeric(df["auto_cycles"], errors="coerce").fillna(0)
 
         # Current event COPR
         copr_auto = pd.Series(0.0, index=df.index)
@@ -230,7 +230,9 @@ class FRC2026PicklistAnalysis:
             hopper["team_number"] = pd.to_numeric(hopper["team_number"], errors="coerce").astype("Int64")
             hopper["hopper_size"] = pd.to_numeric(hopper["hopper_size"], errors="coerce")
             df = df.merge(hopper, on="team_number", how="left")
-            df["scouted_teleop"] = pd.to_numeric(df["cycles"], errors="coerce").fillna(0) * df["hopper_size"].fillna(0)
+            df["scouted_teleop"] = pd.to_numeric(df["teleop_cycles"], errors="coerce").fillna(0) * df[
+                "hopper_size"
+            ].fillna(0)
         else:
             df["scouted_teleop"] = 0
 
@@ -372,7 +374,7 @@ class FRC2026PicklistAnalysis:
             pd.DataFrame: Mean drive_rank and defense_rank keyed by team_number.
         """
         df = self.scouting_df.copy()
-        df["drive_rank"] = pd.to_numeric(df["drive_rank"], errors="coerce")
+        df["drive_rank"] = pd.to_numeric(df["driver_rank"], errors="coerce")
         df["defense_rank"] = pd.to_numeric(df["defense_rank"], errors="coerce")
         return df.groupby("team_number")[["drive_rank", "defense_rank"]].mean().reset_index()
 

@@ -1,7 +1,8 @@
 $root = "C:\Users\ejmcc\Documents\FRC4607\Scouting-Analysis"
 
 $action = New-ScheduledTaskAction -Execute "cmd.exe" `
-  -Argument "/c cd /d $root && venv\Scripts\activate && run_picklist --event_key 2026mnmi2 --save --post"
+  -Argument "/c cd /d $root && venv\Scripts\run_picklist.exe --event_key 2026mnmi2 --save --post" `
+  -WorkingDirectory $root
 
 $trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Minutes 30) `
   -Once -At "2026-04-10 09:00" -RepetitionDuration (New-TimeSpan -Hours 10)
