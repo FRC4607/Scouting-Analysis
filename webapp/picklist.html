@@ -216,6 +216,10 @@
     if (!d || isNaN(n) || val === '') return '';
     // Lower is better for fouls only; drive/defense rank higher = better
     if (col === 'foulPoints') {
+      if (n <= d.p25) return 'c-green';
+      if (n >= d.p75) return 'c-red';
+      return 'c-mid';
+    }
     if (n >= d.p75) return 'c-green';
     if (n <= d.p25) return 'c-red';
     return 'c-mid';
