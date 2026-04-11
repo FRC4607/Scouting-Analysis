@@ -154,6 +154,8 @@ def main():
         matches[int(row["match_number"])] = {
             "blue": [int(t[3:]) for t in alliances["blue"]["team_keys"]],
             "red": [int(t[3:]) for t in alliances["red"]["team_keys"]],
+            "blue_score": alliances["blue"].get("score", -1),
+            "red_score": alliances["red"].get("score", -1),
         }
 
     # Build a lookup from picklist
@@ -233,12 +235,16 @@ def main():
                 num = int(parts[0].replace("Match ", ""))
                 alliance = parts[1].strip() if len(parts) > 1 else ""
                 current_match = str(num)
+                blue_score = matches.get(num, {}).get("blue_score", -1)
+                red_score = matches.get(num, {}).get("red_score", -1)
                 match_data[current_match] = {
                     "num": num,
                     "alliance": alliance,
                     "played": num in played_match_nums,
                     "blueTotal": float(row.iloc[3]) if row.iloc[3] != "" else 0,
                     "redTotal": float(row.iloc[7]) if row.iloc[7] != "" else 0,
+                    "blueActual": blue_score if isinstance(blue_score, int) and blue_score >= 0 else None,
+                    "redActual": red_score if isinstance(red_score, int) and red_score >= 0 else None,
                     "rows": [],
                 }
             elif current_match and first not in ("", "blue1"):

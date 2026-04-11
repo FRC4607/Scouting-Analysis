@@ -139,6 +139,14 @@
       color: #facc15; border: 1px solid #facc15; border-radius: 3px;
       padding: 0px 4px; margin-left: 4px;
     }
+    .win-badge {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+      border-radius: 3px; padding: 1px 6px; font-weight: bold;
+    }
+    .win-badge.blue { color: var(--blue); border: 1px solid var(--blue); }
+    .win-badge.red  { color: var(--red);  border: 1px solid var(--red); }
+    .score-actual   { font-family: var(--mono); font-size: 18px; }
+    .score-est      { font-family: var(--mono); font-size: 14px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -206,17 +214,32 @@
     const allianceColor = m.alliance === 'BLUE' ? 'var(--blue)' : 'var(--red)';
     const allianceBg    = m.alliance === 'BLUE' ? '#0d2040' : '#2a0d0d';
     const playedClass   = m.played ? 'played' : '';
-    const playedBadge   = m.played ? '<span class="played-badge">✓ PLAYED</span>' : '';
+
+    const hasActual = m.blueActual != null && m.redActual != null;
+    const winner = hasActual
+      ? (m.blueActual > m.redActual ? 'blue' : m.redActual > m.blueActual ? 'red' : 'tie')
+      : null;
+
+    const winBadge = winner && winner !== 'tie'
+      ? `<span class="win-badge ${winner}">${winner.toUpperCase()} WIN</span>`
+      : m.played ? '<span class="played-badge">✓ PLAYED</span>' : '';
+
+    const blueScoreHtml = hasActual
+      ? `<span class="score-actual" style="color:var(--blue)">${m.blueActual}</span>`
+      : `<span class="score-est" style="color:var(--blue)">${parseFloat(m.blueTotal).toFixed(1)}</span>`;
+    const redScoreHtml = hasActual
+      ? `<span class="score-actual" style="color:var(--red)">${m.redActual}</span>`
+      : `<span class="score-est" style="color:var(--red)">${parseFloat(m.redTotal).toFixed(1)}</span>`;
 
     return `
       <div class="match-card ${playedClass}" id="mc-${m.num}" style="animation-delay:${idx * 0.02}s">
         <div class="match-header" onclick="toggle('mc-${m.num}')">
           <div class="match-num">Q${m.num}</div>
-          ${playedBadge}
+          ${winBadge}
           <div style="font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;background:${allianceBg};color:${allianceColor};letter-spacing:2px;">${m.alliance}</div>
           <div class="alliance-totals">
-            <div class="alliance-total blue"><span class="value">${parseFloat(m.blueTotal).toFixed(1)}</span></div>
-            <div class="alliance-total red"><span class="value">${parseFloat(m.redTotal).toFixed(1)}</span></div>
+            <div class="alliance-total blue">${blueScoreHtml}</div>
+            <div class="alliance-total red">${redScoreHtml}</div>
           </div>
           <div class="chevron">▾</div>
         </div>
