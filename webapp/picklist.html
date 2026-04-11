@@ -214,12 +214,8 @@
     const distKey = { 'score': 'total', 'drive_rank': 'drive', 'defense_rank': 'defense' }[col] || col;
     const d = DIST[distKey];
     if (!d || isNaN(n) || val === '') return '';
-    // Lower is better for drive and defense ranks
-    if (col === 'drive_rank' || col === 'defense_rank') {
-      if (n <= d.p25) return 'c-green';
-      if (n >= d.p75) return 'c-red';
-      return 'c-mid';
-    }
+    // Lower is better for fouls only; drive/defense rank higher = better
+    if (col === 'foulPoints') {
     if (n >= d.p75) return 'c-green';
     if (n <= d.p25) return 'c-red';
     return 'c-mid';

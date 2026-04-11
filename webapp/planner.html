@@ -191,8 +191,8 @@
     const n = parseFloat(val);
     const d = DIST[metric];
     if (!d || isNaN(n)) return '';
-    // Lower is better for fouls, dpr, drive, defense
-    if (['fouls', 'dpr', 'drive', 'defense'].includes(metric)) {
+    // Lower is better for fouls and dpr
+    if (['fouls', 'dpr'].includes(metric)) {
       if (n <= d.p25) return 'c-green';
       if (n >= d.p75) return 'c-red';
       return 'c-mid';
