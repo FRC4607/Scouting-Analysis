@@ -204,8 +204,8 @@
   }
 
   async function fetchData() {
-    const url = `https://raw.githubusercontent.com/FRC4607/Scouting-Analysis/main/webapp/latest_picklist.json?t=${Date.now()}`;
-    const resp = await fetch(url);
+    const url = `https://api.github.com/repos/FRC4607/Scouting-Analysis/contents/webapp/latest_picklist.json`;
+    const resp = await fetch(url, { headers: { 'Accept': 'application/vnd.github.v3.raw' } });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   }
