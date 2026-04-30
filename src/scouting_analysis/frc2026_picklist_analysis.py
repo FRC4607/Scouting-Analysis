@@ -23,6 +23,9 @@ class FRC2026PicklistAnalysis:
         pits_df (pd.DataFrame): Pits database rows for the event.
         coprs_df (pd.DataFrame): TBA COPR data for the event.
         epa_df (pd.DataFrame): Statbotics EPA data for the event.
+        prior_coprs_df (pd.DataFrame): COPR data from each team's most recent prior event.
+        oprs_df (pd.DataFrame): TBA OPR/DPR data for the current event.
+        prior_oprs_df (pd.DataFrame): OPR/DPR data from each team's most recent prior event.
     """
 
     def __init__(
@@ -34,6 +37,8 @@ class FRC2026PicklistAnalysis:
         coprs_df: pd.DataFrame,
         epa_df: pd.DataFrame = pd.DataFrame(),
         prior_coprs_df: pd.DataFrame = pd.DataFrame(),
+        oprs_df: pd.DataFrame = pd.DataFrame(),
+        prior_oprs_df: pd.DataFrame = pd.DataFrame(),
     ) -> None:
         self.scouting_df = scouting_df
         self.metric = metric
@@ -41,6 +46,8 @@ class FRC2026PicklistAnalysis:
         self.coprs_df = coprs_df
         self.epa_df = epa_df
         self.prior_coprs_df = prior_coprs_df
+        self.oprs_df = oprs_df
+        self.prior_oprs_df = prior_oprs_df
 
         # Dynamic weights based on quals played.
         # With prior COPR: EPA fixed at 25%, prior→current COPR share the remaining 75%.
@@ -66,7 +73,7 @@ class FRC2026PicklistAnalysis:
 
         print(
             f"\nMatch progress: {played}/{total} quals played (alpha={alpha:.2f})"
-            f" → current_copr={self.current_copr_weight:.2f},"
+            f" -> current_copr={self.current_copr_weight:.2f},"
             f" prior_copr={self.prior_copr_weight:.2f},"
             f" epa={self.epa_weight:.2f}\n"
         )
@@ -80,6 +87,8 @@ class FRC2026PicklistAnalysis:
         self.auto_df = self._get_auto_summary()
         self.teleop_df = self._get_teleop_summary()
         self.endgame_df = self._get_tba_endgame_summary()
+        self.fouls_df = self._get_fouls_summary()
+        self.dpr_df = self._get_dpr_summary()
         self.rank_df = self._get_rank_summary()
         self.breakdown_df = self._get_breakdown_summary()
         self.comments_df = self._get_comments_summary()
@@ -99,6 +108,8 @@ class FRC2026PicklistAnalysis:
         auto_pl = self.auto_df[["team_number", m, "n"]].rename(columns={m: f"auto_{m}"})
         teleop_pl = self.teleop_df[["team_number", m]].rename(columns={m: f"teleop_{m}"})
         endgame_pl = self.endgame_df[["team_number", m]].rename(columns={m: f"endgame_{m}"})
+        fouls_pl = self.fouls_df[["team_number", "foulPoints"]]
+        dpr_pl = self.dpr_df[["team_number", "dprs"]]
         rank_pl = self.rank_df[["team_number", "drive_rank", "defense_rank"]]
         breakdown_pl = self.breakdown_df[["team_number", "breakdown"]]
         comments_pl = self.comments_df[["team_number", "comments"]]
@@ -106,6 +117,8 @@ class FRC2026PicklistAnalysis:
         df = (
             auto_pl.merge(teleop_pl, on="team_number")
             .merge(endgame_pl, on="team_number", how="left")
+            .merge(fouls_pl, on="team_number", how="left")
+            .merge(dpr_pl, on="team_number", how="left")
             .merge(rank_pl, on="team_number")
             .merge(breakdown_pl, on="team_number")
             .merge(comments_pl, on="team_number")
@@ -129,7 +142,20 @@ class FRC2026PicklistAnalysis:
         )
 
         return df[
-            ["team", "score", "auto", "teleop", "endgame", "n", "drive_rank", "defense_rank", "breakdown", "comments"]
+            [
+                "team",
+                "score",
+                "auto",
+                "teleop",
+                "endgame",
+                "n",
+                "foulPoints",
+                "dprs",
+                "drive_rank",
+                "defense_rank",
+                "breakdown",
+                "comments",
+            ]
         ]
 
     # ------------------------------------------------------------------ #
@@ -172,11 +198,13 @@ class FRC2026PicklistAnalysis:
 
         # Prior event COPR
         prior_copr_auto = pd.Series(0.0, index=df.index)
+        has_prior_copr = pd.Series(False, index=df.index)
         if not self.prior_coprs_df.empty and "Hub Auto Fuel Count" in self.prior_coprs_df.columns:
             prior = self.prior_coprs_df[["Hub Auto Fuel Count"]].copy()
             prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
             prior.rename(columns={"Hub Auto Fuel Count": "prior_copr_auto_fuel"}, inplace=True)
             df = df.merge(prior[["team_number", "prior_copr_auto_fuel"]], on="team_number", how="left")
+            has_prior_copr = df["prior_copr_auto_fuel"].notna()
             prior_copr_auto = df["prior_copr_auto_fuel"].fillna(0).clip(lower=0)
 
         # EPA
@@ -187,10 +215,10 @@ class FRC2026PicklistAnalysis:
             df = df.merge(epa, on="team_number", how="left")
             epa_auto = df["auto_epa"].fillna(0)
 
-        # Weighted blend
-        df["total_auto_points"] = (
-            self.current_copr_weight * copr_auto + self.prior_copr_weight * prior_copr_auto + self.epa_weight * epa_auto
-        )
+        # Weighted blend — teams missing prior COPR data get that weight redistributed to EPA
+        prior_w = self.prior_copr_weight * has_prior_copr.astype(float)
+        epa_w = self.epa_weight + self.prior_copr_weight * (~has_prior_copr).astype(float)
+        df["total_auto_points"] = self.current_copr_weight * copr_auto + prior_w * prior_copr_auto + epa_w * epa_auto
 
         # Debug
         print("\n--- Auto Summary Debug ---")
@@ -247,11 +275,13 @@ class FRC2026PicklistAnalysis:
 
         # Prior event COPR
         prior_copr_teleop = pd.Series(0.0, index=df.index)
+        has_prior_copr = pd.Series(False, index=df.index)
         if not self.prior_coprs_df.empty and "Hub Teleop Fuel Count" in self.prior_coprs_df.columns:
             prior = self.prior_coprs_df[["Hub Teleop Fuel Count"]].copy()
             prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
             prior.rename(columns={"Hub Teleop Fuel Count": "prior_copr_teleop"}, inplace=True)
             df = df.merge(prior[["team_number", "prior_copr_teleop"]], on="team_number", how="left")
+            has_prior_copr = df["prior_copr_teleop"].notna()
             prior_copr_teleop = df["prior_copr_teleop"].fillna(0).clip(lower=0)
 
         # EPA
@@ -262,11 +292,11 @@ class FRC2026PicklistAnalysis:
             df = df.merge(epa, on="team_number", how="left")
             epa_teleop = df["teleop_epa"].fillna(0)
 
-        # Weighted blend
+        # Weighted blend — teams missing prior COPR data get that weight redistributed to EPA
+        prior_w = self.prior_copr_weight * has_prior_copr.astype(float)
+        epa_w = self.epa_weight + self.prior_copr_weight * (~has_prior_copr).astype(float)
         df["total_teleop_points"] = (
-            self.current_copr_weight * copr_teleop
-            + self.prior_copr_weight * prior_copr_teleop
-            + self.epa_weight * epa_teleop
+            self.current_copr_weight * copr_teleop + prior_w * prior_copr_teleop + epa_w * epa_teleop
         )
 
         # Debug
@@ -322,11 +352,13 @@ class FRC2026PicklistAnalysis:
 
         # Prior event COPR Hub Endgame Fuel Count (no climb available for prior events)
         prior_endgame = pd.Series(0.0, index=df_merged.index)
+        has_prior_copr = pd.Series(False, index=df_merged.index)
         if not self.prior_coprs_df.empty and "Hub Endgame Fuel Count" in self.prior_coprs_df.columns:
             prior = self.prior_coprs_df[["Hub Endgame Fuel Count"]].copy()
             prior["team_number"] = prior.index.str.replace("frc", "").astype("Int64")
             prior.rename(columns={"Hub Endgame Fuel Count": "prior_endgame_fuel"}, inplace=True)
             df_merged = df_merged.merge(prior[["team_number", "prior_endgame_fuel"]], on="team_number", how="left")
+            has_prior_copr = df_merged["prior_endgame_fuel"].notna()
             prior_endgame = df_merged["prior_endgame_fuel"].fillna(0).clip(lower=0)
 
         # EPA
@@ -337,11 +369,11 @@ class FRC2026PicklistAnalysis:
             df_merged = df_merged.merge(epa, on="team_number", how="left")
             epa_endgame = df_merged["endgame_epa"].fillna(0).clip(lower=0)
 
-        # Weighted blend
+        # Weighted blend — teams missing prior COPR data get that weight redistributed to EPA
+        prior_w = self.prior_copr_weight * has_prior_copr.astype(float)
+        epa_w = self.epa_weight + self.prior_copr_weight * (~has_prior_copr).astype(float)
         df_merged["total_endgame_points"] = (
-            self.current_copr_weight * current_tba_endgame
-            + self.prior_copr_weight * prior_endgame
-            + self.epa_weight * epa_endgame
+            self.current_copr_weight * current_tba_endgame + prior_w * prior_endgame + epa_w * epa_endgame
         )
 
         # Debug
@@ -364,6 +396,66 @@ class FRC2026PicklistAnalysis:
         print("--- End Endgame Summary Debug ---\n")
 
         return self._get_stats_summary(df_merged, "total_endgame_points")
+
+    def _get_fouls_summary(self) -> pd.DataFrame:
+        """Compute per-team blended foul points from current and prior event COPR.
+
+        Blend: alpha * current_foulPoints + (1-alpha) * prior_foulPoints
+        No EPA equivalent; prior COPR fills the full weight when no matches played.
+
+        Returns:
+            pd.DataFrame: foulPoints keyed by team_number.
+        """
+        alpha = self.played_quals / self.total_quals if self.total_quals > 0 else 0.0
+        teams = self.scouting_df[["team_number"]].drop_duplicates().copy()
+        teams["team_number"] = teams["team_number"].astype("Int64")
+
+        current = pd.Series(0.0, index=teams.index)
+        if not self.coprs_df.empty and "foulPoints" in self.coprs_df.columns:
+            c = self.coprs_df[["foulPoints"]].copy()
+            c["team_number"] = c.index.str.replace("frc", "").astype("Int64")
+            teams = teams.merge(c.rename(columns={"foulPoints": "_cur_fouls"}), on="team_number", how="left")
+            current = teams["_cur_fouls"].fillna(0)
+
+        prior = pd.Series(0.0, index=teams.index)
+        if not self.prior_coprs_df.empty and "foulPoints" in self.prior_coprs_df.columns:
+            p = self.prior_coprs_df[["foulPoints"]].copy()
+            p["team_number"] = p.index.str.replace("frc", "").astype("Int64")
+            teams = teams.merge(p.rename(columns={"foulPoints": "_pri_fouls"}), on="team_number", how="left")
+            prior = teams["_pri_fouls"].fillna(0)
+
+        teams["foulPoints"] = alpha * current + (1 - alpha) * prior
+        return teams[["team_number", "foulPoints"]]
+
+    def _get_dpr_summary(self) -> pd.DataFrame:
+        """Compute per-team blended DPR from current and prior event OPRs.
+
+        Blend: alpha * current_dprs + (1-alpha) * prior_dprs
+        No EPA equivalent; prior OPR fills the full weight when no matches played.
+
+        Returns:
+            pd.DataFrame: dprs keyed by team_number.
+        """
+        alpha = self.played_quals / self.total_quals if self.total_quals > 0 else 0.0
+        teams = self.scouting_df[["team_number"]].drop_duplicates().copy()
+        teams["team_number"] = teams["team_number"].astype("Int64")
+
+        current = pd.Series(0.0, index=teams.index)
+        if not self.oprs_df.empty and "dprs" in self.oprs_df.columns:
+            c = self.oprs_df[["dprs"]].copy()
+            c["team_number"] = c.index.str.replace("frc", "").astype("Int64")
+            teams = teams.merge(c.rename(columns={"dprs": "_cur_dpr"}), on="team_number", how="left")
+            current = teams["_cur_dpr"].fillna(0)
+
+        prior = pd.Series(0.0, index=teams.index)
+        if not self.prior_oprs_df.empty and "dprs" in self.prior_oprs_df.columns:
+            p = self.prior_oprs_df[["dprs"]].copy()
+            p["team_number"] = p.index.str.replace("frc", "").astype("Int64")
+            teams = teams.merge(p.rename(columns={"dprs": "_pri_dpr"}), on="team_number", how="left")
+            prior = teams["_pri_dpr"].fillna(0)
+
+        teams["dprs"] = alpha * current + (1 - alpha) * prior
+        return teams[["team_number", "dprs"]]
 
     def _get_rank_summary(self) -> pd.DataFrame:
         """Compute mean drive and defense rankings per team.

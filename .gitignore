@@ -161,5 +161,9 @@ cython_debug/
 
 .ps_history
 
+# Local data cache
+*.csv
+*.txt
+
 # Claude Code memory
 memory/

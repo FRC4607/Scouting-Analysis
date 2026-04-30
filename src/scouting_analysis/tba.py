@@ -132,7 +132,7 @@ class TBA:
         logger.info("Fetched and cached '%s'.", filename)
         return df
 
-    def get_prior_event_coprs(self, event_key: str, year: int) -> pd.DataFrame:
+    def get_prior_event_coprs(self, event_key: str, year: int) -> tuple[pd.DataFrame, set[str]]:
         """Build a COPR DataFrame using each team's most recent prior-event COPRs.
 
         For each team at *event_key*, finds the most recent event they played
@@ -146,18 +146,19 @@ class TBA:
             year (int): The competition year.
 
         Returns:
-            pd.DataFrame: COPR data indexed by team key (e.g. 'frc4607').
-                          Empty if no prior-event data is available.
+            tuple[pd.DataFrame, set[str]]:
+                - COPR data indexed by team key (e.g. 'frc4607'). Empty if none available.
+                - Set of team keys that have at least one prior event (regardless of COPR availability).
         """
         current_start = self._get_event_start_date(event_key)
         if not current_start:
-            return pd.DataFrame()
+            return pd.DataFrame(), set()
 
         teams_df = self.get_event_team_list(event_key, force=False)
         if teams_df.empty or "team_number" not in teams_df.columns:
-            return pd.DataFrame()
+            return pd.DataFrame(), set()
 
-        # Map each team to their most recent prior event
+        # Map each team to their most recent prior event that has COPR data
         team_prior: dict[str, str] = {}
         for team_num in teams_df["team_number"]:
             team_key = f"frc{int(team_num)}"
@@ -168,13 +169,24 @@ class TBA:
             )
             if events_df.empty or "start_date" not in events_df.columns or "key" not in events_df.columns:
                 continue
-            prior = events_df[events_df["start_date"] < current_start]
+            prior = events_df[events_df["start_date"] < current_start].sort_values("start_date", ascending=False)
             if prior.empty:
                 continue
-            team_prior[team_key] = prior.loc[prior["start_date"].idxmax(), "key"]
+            # Walk prior events newest-first; use the first one with non-empty COPRs
+            for _, event_row in prior.iterrows():
+                candidate_key = event_row["key"]
+                try:
+                    candidate_coprs = self.get_event_coprs(candidate_key, force=False)
+                except Exception:
+                    continue
+                if not candidate_coprs.empty and team_key in candidate_coprs.index:
+                    team_prior[team_key] = candidate_key
+                    break
+
+        teams_with_prior = set(team_prior.keys())
 
         if not team_prior:
-            return pd.DataFrame()
+            return pd.DataFrame(), teams_with_prior
 
         # Fetch COPRs once per unique prior event, then extract each team's row
         event_coprs_cache: dict[str, pd.DataFrame] = {}
@@ -190,11 +202,80 @@ class TBA:
                 rows[team_key] = coprs.loc[team_key].to_dict()
 
         if not rows:
-            return pd.DataFrame()
+            return pd.DataFrame(), teams_with_prior
 
         result = pd.DataFrame.from_dict(rows, orient="index")
         result.index.name = "team_key"
         logger.info("Built prior-event COPRs for %d/%d teams.", len(rows), len(teams_df))
+        return result, teams_with_prior
+
+    def get_prior_event_oprs(self, event_key: str, year: int) -> pd.DataFrame:
+        """Build an OPR DataFrame using each team's most recent prior-event OPRs.
+
+        Mirrors get_prior_event_coprs but fetches OPR/DPR/CCWM instead. Useful
+        as a fallback for DPR when the current event has no match data yet.
+
+        Args:
+            event_key (str): The current event key.
+            year (int): The competition year.
+
+        Returns:
+            pd.DataFrame: OPR data (oprs, dprs, ccwms) indexed by team key. Empty if unavailable.
+        """
+        current_start = self._get_event_start_date(event_key)
+        if not current_start:
+            return pd.DataFrame()
+
+        teams_df = self.get_event_team_list(event_key, force=False)
+        if teams_df.empty or "team_number" not in teams_df.columns:
+            return pd.DataFrame()
+
+        team_prior: dict[str, str] = {}
+        for team_num in teams_df["team_number"]:
+            team_key = f"frc{int(team_num)}"
+            events_df = self._get_cached(
+                filename=f"team_events_{team_key}_{year}.csv",
+                endpoint=f"/team/{team_key}/events/{year}/simple",
+                force=False,
+            )
+            if events_df.empty or "start_date" not in events_df.columns or "key" not in events_df.columns:
+                continue
+            prior = events_df[events_df["start_date"] < current_start].sort_values("start_date", ascending=False)
+            if prior.empty:
+                continue
+            for _, event_row in prior.iterrows():
+                candidate_key = event_row["key"]
+                try:
+                    candidate_oprs = self.get_event_oprs(candidate_key, force=False)
+                except Exception:
+                    continue
+                if not candidate_oprs.empty and team_key in candidate_oprs.index:
+                    val = candidate_oprs.loc[team_key, "dprs"]
+                    if pd.notna(val) and float(val) != 0.0:
+                        team_prior[team_key] = candidate_key
+                        break
+
+        if not team_prior:
+            return pd.DataFrame()
+
+        event_oprs_cache: dict[str, pd.DataFrame] = {}
+        rows: dict[str, dict] = {}
+        for team_key, prior_event_key in team_prior.items():
+            if prior_event_key not in event_oprs_cache:
+                try:
+                    event_oprs_cache[prior_event_key] = self.get_event_oprs(prior_event_key, force=False)
+                except Exception:
+                    event_oprs_cache[prior_event_key] = pd.DataFrame()
+            oprs = event_oprs_cache[prior_event_key]
+            if not oprs.empty and team_key in oprs.index:
+                rows[team_key] = oprs.loc[team_key].to_dict()
+
+        if not rows:
+            return pd.DataFrame()
+
+        result = pd.DataFrame.from_dict(rows, orient="index")
+        result.index.name = "team_key"
+        logger.info("Built prior-event OPRs for %d/%d teams.", len(rows), len(teams_df))
         return result
 
     # ------------------------------------------------------------------ #

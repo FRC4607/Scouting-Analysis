@@ -119,13 +119,14 @@ def main():
     # Prior event COPR                                                     #
     # ------------------------------------------------------------------ #
     year = int(args.event_key[:4])
-    prior_coprs_df = tba.get_prior_event_coprs(args.event_key, year)
+    prior_coprs_df, teams_with_prior = tba.get_prior_event_coprs(args.event_key, year)
+    prior_oprs_df = tba.get_prior_event_oprs(args.event_key, year)
 
     # ------------------------------------------------------------------ #
     # Picklist analysis                                                    #
     # ------------------------------------------------------------------ #
     rpa = FRC2026PicklistAnalysis(
-        scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df, epa_df, prior_coprs_df
+        scouting_df, args.metric, match_breakdowns_df, pits_df, coprs_df, epa_df, prior_coprs_df, oprs_df, prior_oprs_df
     )
     picklist_df = rpa.get_picklist_summary()
 
@@ -162,21 +163,21 @@ def main():
     picklist_lookup = picklist_df.set_index("team")
 
     def get_stat(team, col):
-        try:
-            val = picklist_lookup.loc[team, col]
-            return round(float(val), 1) if pd.notna(val) else ""
-        except (KeyError, TypeError):
+        for source in [picklist_lookup, coprs_df, oprs_df]:
             try:
-                team_key = f"frc{team}"
-                val = coprs_df.loc[team_key, col]
-                return round(float(val), 1) if pd.notna(val) else ""
+                val = source.loc[team if source is picklist_lookup else f"frc{team}", col]
+                if pd.notna(val) and float(val) != 0.0:
+                    return round(float(val), 1)
             except (KeyError, TypeError):
-                try:
-                    team_key = f"frc{team}"
-                    val = oprs_df.loc[team_key, col]
-                    return round(float(val), 1) if pd.notna(val) else ""
-                except (KeyError, TypeError):
-                    return ""
+                pass
+        for prior in [prior_oprs_df, prior_coprs_df]:
+            try:
+                val = prior.loc[f"frc{team}", col]
+                if pd.notna(val):
+                    return round(float(val), 1)
+            except (KeyError, TypeError):
+                pass
+        return ""
 
     rows = []
     for match_num, alliances in sorted(matches.items()):
@@ -285,10 +286,8 @@ def main():
 
         # Teams whose prior_coprs_df has no entry are at their first event
         all_team_nums = set(picklist_df["team"].astype(int))
-        teams_with_prior = (
-            {int(k.replace("frc", "")) for k in prior_coprs_df.index} if not prior_coprs_df.empty else set()
-        )
-        first_event_teams = sorted(all_team_nums - teams_with_prior)
+        teams_with_prior_nums = {int(k.replace("frc", "")) for k in teams_with_prior}
+        first_event_teams = sorted(all_team_nums - teams_with_prior_nums)
 
         last_updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         blend = {
