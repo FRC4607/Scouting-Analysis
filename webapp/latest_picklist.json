@@ -1,20 +1,20 @@
 {
   "distribution": {
     "auto": {
-      "p25": 11.5,
-      "p75": 29.1
+      "p25": 11.9,
+      "p75": 30.4
     },
     "teleop": {
-      "p25": 48.2,
-      "p75": 112.4
+      "p25": 60.8,
+      "p75": 121.2
     },
     "endgame": {
-      "p25": 15.2,
-      "p75": 34.7
+      "p25": 19.0,
+      "p75": 37.0
     },
     "total": {
-      "p25": 81.6,
-      "p75": 178.4
+      "p25": 96.2,
+      "p75": 189.0
     },
     "dpr": {
       "p25": 0.0,
@@ -22,6 +22,17 @@
     }
   },
   "teams": [
+    {
+      "team": 7769,
+      "score": 335.9,
+      "auto": 54.3,
+      "teleop": 216.3,
+      "endgame": 65.3,
+      "drive_rank": "",
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": ""
+    },
     {
       "team": 1690,
       "score": 315.1,
@@ -39,6 +50,17 @@
       "auto": 53.9,
       "teleop": 196.4,
       "endgame": 51.3,
+      "drive_rank": "",
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": ""
+    },
+    {
+      "team": 1768,
+      "score": 281.6,
+      "auto": 51.6,
+      "teleop": 168.6,
+      "endgame": 61.4,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -171,6 +193,17 @@
       "auto": 30.4,
       "teleop": 133.2,
       "endgame": 37.1,
+      "drive_rank": "",
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": ""
+    },
+    {
+      "team": 2468,
+      "score": 196.3,
+      "auto": 15.4,
+      "teleop": 141.7,
+      "endgame": 39.1,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -639,11 +672,33 @@
       "comments": ""
     },
     {
-      "team": 7769,
-      "score": 72.0,
-      "auto": 15.1,
+      "team": 5577,
+      "score": 85.5,
+      "auto": 6.0,
+      "teleop": 60.6,
+      "endgame": 18.9,
+      "drive_rank": "",
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": ""
+    },
+    {
+      "team": 11242,
+      "score": 73.6,
+      "auto": 9.6,
+      "teleop": 44.8,
+      "endgame": 19.2,
+      "drive_rank": "",
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": ""
+    },
+    {
+      "team": 2635,
+      "score": 55.6,
+      "auto": 5.9,
       "teleop": 40.0,
-      "endgame": 17.0,
+      "endgame": 9.8,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -683,17 +738,6 @@
       "comments": ""
     },
     {
-      "team": 1768,
-      "score": 52.8,
-      "auto": 9.9,
-      "teleop": 28.5,
-      "endgame": 14.4,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
       "team": 8069,
       "score": 42.9,
       "auto": 12.0,
@@ -716,11 +760,11 @@
       "comments": ""
     },
     {
-      "team": 2468,
-      "score": 42.6,
-      "auto": 5.7,
-      "teleop": 26.3,
-      "endgame": 10.6,
+      "team": 6201,
+      "score": 42.5,
+      "auto": 7.8,
+      "teleop": 21.7,
+      "endgame": 13.0,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -782,44 +826,11 @@
       "comments": ""
     },
     {
-      "team": 11242,
-      "score": 18.2,
-      "auto": 4.7,
-      "teleop": 7.8,
-      "endgame": 5.8,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 5577,
-      "score": 15.9,
-      "auto": 1.4,
-      "teleop": 9.9,
-      "endgame": 4.6,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
       "team": 5705,
       "score": 14.5,
       "auto": 4.2,
       "teleop": 6.3,
       "endgame": 4.0,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
-    },
-    {
-      "team": 2635,
-      "score": 11.3,
-      "auto": 2.2,
-      "teleop": 6.4,
-      "endgame": 2.7,
       "drive_rank": "",
       "defense_rank": "",
       "breakdown": 0,
@@ -835,21 +846,10 @@
       "defense_rank": "",
       "breakdown": 0,
       "comments": ""
-    },
-    {
-      "team": 6201,
-      "score": 6.9,
-      "auto": 2.1,
-      "teleop": 1.5,
-      "endgame": 3.3,
-      "drive_rank": "",
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": ""
     }
   ],
   "event_key": "2026gal",
-  "last_updated": "2026-04-30T03:27:12Z",
+  "last_updated": "2026-04-30T03:42:56Z",
   "blend": {
     "played_quals": 0,
     "total_quals": 125,
