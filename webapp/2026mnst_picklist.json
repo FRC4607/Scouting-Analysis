@@ -1,430 +1,430 @@
 {
   "distribution": {
     "auto": {
-      "p25": 9.0,
-      "p75": 21.6
+      "p25": 10.6,
+      "p75": 24.1
     },
     "teleop": {
-      "p25": 35.2,
-      "p75": 84.2
+      "p25": 37.2,
+      "p75": 85.5
     },
     "endgame": {
-      "p25": 9.4,
-      "p75": 33.3
+      "p25": 6.6,
+      "p75": 28.7
     },
     "total": {
-      "p25": 54.7,
-      "p75": 124.9
+      "p25": 61.5,
+      "p75": 132.6
     },
     "fouls": {
-      "p25": -0.8,
-      "p75": 6.1
+      "p25": 0.0,
+      "p75": 3.7
     },
     "dpr": {
-      "p25": 55.5,
-      "p75": 162.5
+      "p25": 60.6,
+      "p75": 160.4
     },
     "drive": {
-      "p25": 2.6,
+      "p25": 2.5,
       "p75": 3.5
     },
     "defense": {
-      "p25": 2.3,
+      "p25": 2.2,
       "p75": 3.0
     }
   },
   "teams": [
     {
       "team": 7028,
-      "score": 223.0,
-      "auto": 41.9,
-      "teleop": 141.1,
-      "endgame": 40.1,
-      "drive_rank": 4.0,
+      "score": 258.2,
+      "auto": 47.3,
+      "teleop": 160.6,
+      "endgame": 50.2,
+      "drive_rank": 4.3,
       "defense_rank": 2.5,
       "breakdown": 1,
-      "comments": "Started moving weird and couldn\u2019t shoot around endgame |  | Brown out in last 5 seconds  | DOESNT DO WELL WHEN DEFENDED"
-    },
-    {
-      "team": 2491,
-      "score": 219.8,
-      "auto": 22.8,
-      "teleop": 144.8,
-      "endgame": 52.2,
-      "drive_rank": 4.0,
-      "defense_rank": 2.3,
-      "breakdown": 1,
-      "comments": "Mid to good |  | Got stuck at the end of match (caused a loss) | QuickBig hopperSurfed | Dump at end vary cool like a water fall"
-    },
-    {
-      "team": 4174,
-      "score": 200.6,
-      "auto": 26.8,
-      "teleop": 137.2,
-      "endgame": 36.6,
-      "drive_rank": 3.5,
-      "defense_rank": 2.0,
-      "breakdown": 0,
-      "comments": " | Goes early on there time to shoot into the hubs | Evaded defense  |  | "
-    },
-    {
-      "team": 2052,
-      "score": 195.9,
-      "auto": 18.2,
-      "teleop": 141.2,
-      "endgame": 36.5,
-      "drive_rank": 4.0,
-      "defense_rank": 2.0,
-      "breakdown": 0,
-      "comments": "Got heavy defended by 3277 | Fast dumping |  | Good passing | "
+      "comments": "They shoot when it is there shift and pass on the off shift |  | Started moving weird and couldn\u2019t shoot around endgame |  | Brown out in last 5 seconds  | DOESNT DO WELL WHEN DEFENDED"
     },
     {
       "team": 6045,
-      "score": 165.6,
-      "auto": 6.8,
-      "teleop": 115.1,
-      "endgame": 43.7,
-      "drive_rank": 3.8,
+      "score": 193.7,
+      "auto": 15.9,
+      "teleop": 127.2,
+      "endgame": 50.5,
+      "drive_rank": 3.7,
       "defense_rank": 2.0,
       "breakdown": 0,
-      "comments": "Auto messed up |  | Got Defened very well | Enormous hopper | They were quick and fast at pickup and shooting they can only do the bump "
+      "comments": "Auto messed up |  |  | Got Defened very well | Enormous hopper | They were quick and fast at pickup and shooting they can only do the bump "
     },
     {
-      "team": 5913,
-      "score": 162.1,
-      "auto": 17.5,
-      "teleop": 112.4,
-      "endgame": 32.2,
-      "drive_rank": 3.2,
-      "defense_rank": 1.5,
+      "team": 2491,
+      "score": 186.4,
+      "auto": 24.0,
+      "teleop": 125.3,
+      "endgame": 37.0,
+      "drive_rank": 3.8,
+      "defense_rank": 2.5,
       "breakdown": 1,
-      "comments": " | Bad autoWould stop moving then start again | Coun\u2019t get through defense  | Had a little stalls once in awhile (count: 2) | QuickBig hopper"
+      "comments": "Mid to good | Hopper broke  |  | Got stuck at the end of match (caused a loss) | QuickBig hopperSurfed | Dump at end vary cool like a water fall"
+    },
+    {
+      "team": 2052,
+      "score": 167.5,
+      "auto": 23.6,
+      "teleop": 116.2,
+      "endgame": 27.7,
+      "drive_rank": 4.2,
+      "defense_rank": 2.0,
+      "breakdown": 0,
+      "comments": "Got heavy defended by 3277 | They were grounding out | Fast dumping |  | Good passing | "
+    },
+    {
+      "team": 4174,
+      "score": 154.8,
+      "auto": 28.3,
+      "teleop": 104.0,
+      "endgame": 22.5,
+      "drive_rank": 3.4,
+      "defense_rank": 1.8,
+      "breakdown": 0,
+      "comments": " | Goes early on there time to shoot into the hubs | Tight match ok robot | Evaded defense  |  | "
     },
     {
       "team": 11283,
-      "score": 155.5,
-      "auto": 8.9,
-      "teleop": 110.1,
-      "endgame": 36.5,
-      "drive_rank": 3.0,
-      "defense_rank": 3.0,
-      "breakdown": 0,
-      "comments": "Auto messed up | Kind of lowMain shooter | They are a well rounded team just not very strong | Susceptible to defense  | They had a mess up with auto got fuel surfing "
-    },
-    {
-      "team": 2472,
-      "score": 132.4,
-      "auto": 17.5,
-      "teleop": 94.8,
-      "endgame": 20.1,
-      "drive_rank": 3.4,
-      "defense_rank": 2.3,
-      "breakdown": 0,
-      "comments": " | Shoot on the moveMain shooter |  |  | Nothing special"
-    },
-    {
-      "team": 2503,
-      "score": 127.0,
-      "auto": 4.6,
-      "teleop": 85.5,
-      "endgame": 36.9,
-      "drive_rank": 3.2,
-      "defense_rank": "",
-      "breakdown": 0,
-      "comments": "Was getting defended | Dumped out fuel in alliance zone | Beached in auto | They were quick but they were a bit slow on pick up and takes a while to get from the middle of the field to the end and they go over the bump and can\u2019t go to the trench"
-    },
-    {
-      "team": 2530,
-      "score": 124.2,
-      "auto": 10.5,
-      "teleop": 75.4,
-      "endgame": 38.3,
+      "score": 152.3,
+      "auto": 16.4,
+      "teleop": 102.4,
+      "endgame": 33.4,
       "drive_rank": 3.2,
       "defense_rank": 3.0,
       "breakdown": 0,
-      "comments": " |  |  | Kind of got stuck in autoMostly played defense | "
-    },
-    {
-      "team": 2847,
-      "score": 122.7,
-      "auto": 20.6,
-      "teleop": 73.1,
-      "endgame": 29.0,
-      "drive_rank": 3.2,
-      "defense_rank": 3.0,
-      "breakdown": 0,
-      "comments": "Fuel surfed fast | Big hopperPiece fell off | SICK climb | Defended pretty well | Will tip of hopper is too full and break fast"
-    },
-    {
-      "team": 2883,
-      "score": 122.7,
-      "auto": 33.9,
-      "teleop": 68.6,
-      "endgame": 20.2,
-      "drive_rank": 4.0,
-      "defense_rank": 3.0,
-      "breakdown": 0,
-      "comments": " | Basically slapshop | Beached their teammates on accident in auto |  | Good long shot"
+      "comments": "Auto messed up |  | Kind of lowMain shooter | They are a well rounded team just not very strong | Susceptible to defense  | They had a mess up with auto got fuel surfing "
     },
     {
       "team": 4728,
-      "score": 121.4,
-      "auto": 31.3,
-      "teleop": 65.5,
-      "endgame": 24.6,
-      "drive_rank": 2.8,
+      "score": 147.7,
+      "auto": 24.7,
+      "teleop": 100.5,
+      "endgame": 22.5,
+      "drive_rank": 3.0,
       "defense_rank": 2.3,
       "breakdown": 1,
-      "comments": "Very large hopper | Stuck during auto |  | Huge hopper good scorer | Balls don\u2019t come out that fast. It a big robot"
+      "comments": "Very large hopper |  | Stuck during auto |  | Huge hopper good scorer | Balls don\u2019t come out that fast. It a big robot"
+    },
+    {
+      "team": 2847,
+      "score": 144.5,
+      "auto": 20.7,
+      "teleop": 93.6,
+      "endgame": 30.2,
+      "drive_rank": 3.2,
+      "defense_rank": 3.0,
+      "breakdown": 0,
+      "comments": "Fuel surfed fast |  | Big hopperPiece fell off | SICK climb | Defended pretty well | Will tip of hopper is too full and break fast"
+    },
+    {
+      "team": 5913,
+      "score": 136.8,
+      "auto": 22.2,
+      "teleop": 86.4,
+      "endgame": 28.2,
+      "drive_rank": 3.5,
+      "defense_rank": 1.5,
+      "breakdown": 1,
+      "comments": " | Pass when not there shift and shoot the balls on there side | Bad autoWould stop moving then start again | Coun\u2019t get through defense  | Had a little stalls once in awhile (count: 2) | QuickBig hopper"
+    },
+    {
+      "team": 2530,
+      "score": 131.1,
+      "auto": 19.3,
+      "teleop": 72.5,
+      "endgame": 39.4,
+      "drive_rank": 3.3,
+      "defense_rank": 2.8,
+      "breakdown": 0,
+      "comments": " |  |  |  |  | Kind of got stuck in autoMostly played defense | "
+    },
+    {
+      "team": 2883,
+      "score": 127.9,
+      "auto": 24.5,
+      "teleop": 85.3,
+      "endgame": 18.1,
+      "drive_rank": 3.8,
+      "defense_rank": 3.0,
+      "breakdown": 0,
+      "comments": " |  | Basically slapshop | Beached their teammates on accident in auto |  | Good long shot"
+    },
+    {
+      "team": 2472,
+      "score": 122.3,
+      "auto": 13.3,
+      "teleop": 84.0,
+      "endgame": 25.0,
+      "drive_rank": 3.3,
+      "defense_rank": 2.3,
+      "breakdown": 0,
+      "comments": " |  | Shoot on the moveMain shooter |  |  | Nothing special"
+    },
+    {
+      "team": 2503,
+      "score": 115.8,
+      "auto": 12.3,
+      "teleop": 67.3,
+      "endgame": 36.3,
+      "drive_rank": 3.4,
+      "defense_rank": "",
+      "breakdown": 0,
+      "comments": "Was getting defended | Large hopper can score a lot | Dumped out fuel in alliance zone | Beached in auto | They were quick but they were a bit slow on pick up and takes a while to get from the middle of the field to the end and they go over the bump and can\u2019t go to the trench"
     },
     {
       "team": 5653,
-      "score": 118.0,
-      "auto": 13.9,
-      "teleop": 61.2,
-      "endgame": 42.9,
-      "drive_rank": 3.4,
+      "score": 114.2,
+      "auto": 10.9,
+      "teleop": 63.1,
+      "endgame": 40.2,
+      "drive_rank": 3.2,
       "defense_rank": 2.5,
       "breakdown": 2,
-      "comments": " | Auto didn\u2019t work | They started moving again at the end |  | "
-    },
-    {
-      "team": 4607,
-      "score": 116.3,
-      "auto": 24.9,
-      "teleop": 79.2,
-      "endgame": 12.2,
-      "drive_rank": 3.6,
-      "defense_rank": 2.0,
-      "breakdown": 0,
-      "comments": "Very fast and had a quick turret and intake and got stuck on fuel and does a bit of everything  | Played defense in endgame while hopper was full |  |  | Shooting acting up"
+      "comments": " | Auto didn\u2019t work |  | They started moving again at the end |  | "
     },
     {
       "team": 3100,
-      "score": 113.3,
-      "auto": 7.3,
-      "teleop": 75.2,
-      "endgame": 30.9,
-      "drive_rank": 2.5,
+      "score": 110.5,
+      "auto": 6.1,
+      "teleop": 73.9,
+      "endgame": 30.5,
+      "drive_rank": 2.4,
       "defense_rank": 3.0,
       "breakdown": 1,
-      "comments": " | Big hopper but doesn\u2019t fill it so not effective. Plays good defense in neutral zone | Got stuckNot very good at driver | "
-    },
-    {
-      "team": 3293,
-      "score": 110.8,
-      "auto": 9.2,
-      "teleop": 79.9,
-      "endgame": 21.7,
-      "drive_rank": 2.2,
-      "defense_rank": 3.0,
-      "breakdown": 0,
-      "comments": "A bit slow of a auto and they are slow in general it takes a long time to pick up and to get to the middle of the field and has a big hopper | Takes forever to fill hopper then is aimless after. Plays fine defense but doesn\u2019t seem like they have a clear plan so its hesitant  |  Dry tippy  | Climb during auto. Very lightweight and can tip easily. Tipped at end of match"
-    },
-    {
-      "team": 4778,
-      "score": 110.3,
-      "auto": 16.5,
-      "teleop": 62.1,
-      "endgame": 31.7,
-      "drive_rank": 3.0,
-      "defense_rank": "",
-      "breakdown": 2,
-      "comments": "Played well with hopper that was falling off driver adapted well | Could not move at the end of the match  | Stopped during auto and didn\u2019t shoot | Auto shot at judges "
-    },
-    {
-      "team": 4674,
-      "score": 109.4,
-      "auto": 5.5,
-      "teleop": 83.8,
-      "endgame": 20.0,
-      "drive_rank": 3.5,
-      "defense_rank": 2.3,
-      "breakdown": 0,
-      "comments": "Doesn\u2019t shoot a lot in auto and is a bit slow when they shoot and pickup |  | Very fast cycle |  | "
-    },
-    {
-      "team": 7797,
-      "score": 99.6,
-      "auto": 15.5,
-      "teleop": 71.2,
-      "endgame": 12.8,
-      "drive_rank": 2.0,
-      "defense_rank": 2.0,
-      "breakdown": 0,
-      "comments": " | Tiny intake  | Shooter broke  |  | "
-    },
-    {
-      "team": 3276,
-      "score": 88.1,
-      "auto": 21.2,
-      "teleop": 46.6,
-      "endgame": 20.4,
-      "drive_rank": 3.4,
-      "defense_rank": 3.0,
-      "breakdown": 3,
-      "comments": "Passed from middle | Slower that I thought and was surfing |  Intake broke | Broke intake belt  | Shut off in the last 10 seconds"
-    },
-    {
-      "team": 3297,
-      "score": 83.9,
-      "auto": 39.5,
-      "teleop": 37.1,
-      "endgame": 7.3,
-      "drive_rank": 3.3,
-      "defense_rank": 2.3,
-      "breakdown": 2,
-      "comments": "Stopped moving at the end  | Big hopperStopped moving | Dropped moving at the end ( | Got stuck on the bump a lot "
-    },
-    {
-      "team": 3130,
-      "score": 78.5,
-      "auto": 18.5,
-      "teleop": 43.3,
-      "endgame": 16.7,
-      "drive_rank": 2.7,
-      "defense_rank": "",
-      "breakdown": 3,
-      "comments": "Dose fill before dumping. Got stuck on 2 balls | Dose fill before dumping. Got stuck on 2 balls | Got stuck on the bump and slow decision | Missed very frequently |  | "
-    },
-    {
-      "team": 2846,
-      "score": 76.3,
-      "auto": 23.1,
-      "teleop": 29.5,
-      "endgame": 23.7,
-      "drive_rank": 2.4,
-      "defense_rank": 2.5,
-      "breakdown": 0,
-      "comments": " | Half field passing | They will have good auto cycles if they could shoot the fuel |  | "
+      "comments": " | Large hopper | Big hopper but doesn\u2019t fill it so not effective. Plays good defense in neutral zone | Got stuckNot very good at driver | "
     },
     {
       "team": 2220,
-      "score": 73.2,
-      "auto": 20.8,
-      "teleop": 42.9,
-      "endgame": 9.5,
-      "drive_rank": 3.6,
+      "score": 108.6,
+      "auto": 12.2,
+      "teleop": 75.7,
+      "endgame": 20.7,
+      "drive_rank": 3.5,
       "defense_rank": 2.8,
       "breakdown": 1,
-      "comments": "Surf during auto | Good with shuttling cycles |  |  | Shooter broke"
+      "comments": "Surf during auto | Good with shuttling cycles | The can drive very quick |  |  | Shooter broke"
     },
     {
-      "team": 3277,
-      "score": 70.9,
-      "auto": 10.7,
-      "teleop": 44.8,
-      "endgame": 15.5,
+      "team": 7797,
+      "score": 107.6,
+      "auto": 19.5,
+      "teleop": 73.1,
+      "endgame": 15.0,
       "drive_rank": 2.0,
+      "defense_rank": 1.5,
+      "breakdown": 0,
+      "comments": " | Low volume hopper | Tiny intake  | Shooter broke  |  | "
+    },
+    {
+      "team": 3297,
+      "score": 106.7,
+      "auto": 39.6,
+      "teleop": 64.4,
+      "endgame": 2.8,
+      "drive_rank": 3.2,
+      "defense_rank": 2.3,
+      "breakdown": 2,
+      "comments": "Stopped moving at the end  | Large hopper and output |  | Big hopperStopped moving | Dropped moving at the end ( | Got stuck on the bump a lot "
+    },
+    {
+      "team": 4778,
+      "score": 105.8,
+      "auto": 15.2,
+      "teleop": 64.9,
+      "endgame": 25.7,
+      "drive_rank": 2.8,
+      "defense_rank": 3.0,
+      "breakdown": 2,
+      "comments": "Slow auto driving. Bent their intake |  | Played well with hopper that was falling off driver adapted well | Could not move at the end of the match  | Stopped during auto and didn\u2019t shoot | Auto shot at judges "
+    },
+    {
+      "team": 4607,
+      "score": 105.2,
+      "auto": 25.5,
+      "teleop": 66.7,
+      "endgame": 13.0,
+      "drive_rank": 3.6,
+      "defense_rank": 2.0,
+      "breakdown": 0,
+      "comments": "Very fast and had a quick turret and intake and got stuck on fuel and does a bit of everything  | Us :D |  | Played defense in endgame while hopper was full |  |  | Shooting acting up"
+    },
+    {
+      "team": 3293,
+      "score": 101.5,
+      "auto": 18.0,
+      "teleop": 61.3,
+      "endgame": 22.2,
+      "drive_rank": 2.0,
+      "defense_rank": 2.0,
+      "breakdown": 0,
+      "comments": "A bit slow of a auto and they are slow in general it takes a long time to pick up and to get to the middle of the field and has a big hopper | Don\u2019t use use this data | Takes forever to fill hopper then is aimless after. Plays fine defense but doesn\u2019t seem like they have a clear plan so its hesitant  |  Dry tippy  | Climb during auto. Very lightweight and can tip easily. Tipped at end of match"
+    },
+    {
+      "team": 4674,
+      "score": 95.3,
+      "auto": 10.9,
+      "teleop": 63.0,
+      "endgame": 21.4,
+      "drive_rank": 3.2,
+      "defense_rank": 2.3,
+      "breakdown": 0,
+      "comments": "Doesn\u2019t shoot a lot in auto and is a bit slow when they shoot and pickup |  |  | Very fast cycle |  | "
+    },
+    {
+      "team": 3130,
+      "score": 91.6,
+      "auto": 9.2,
+      "teleop": 61.9,
+      "endgame": 20.6,
+      "drive_rank": 2.7,
+      "defense_rank": "",
+      "breakdown": 3,
+      "comments": "Dose fill before dumping. Got stuck on 2 balls | Dose fill before dumping. Got stuck on 2 balls |  | Got stuck on the bump and slow decision | Missed very frequently |  | "
+    },
+    {
+      "team": 3276,
+      "score": 87.7,
+      "auto": 24.5,
+      "teleop": 43.0,
+      "endgame": 20.2,
+      "drive_rank": 3.7,
       "defense_rank": 3.0,
       "breakdown": 3,
-      "comments": "Defense all match |  | Intake broke mostly a passing team |  | Ran into robot and hopper broke"
+      "comments": "Passed from middle |  |  | Slower that I thought and was surfing |  Intake broke | Broke intake belt  | Shut off in the last 10 seconds"
     },
     {
-      "team": 3082,
-      "score": 55.5,
-      "auto": 0.0,
-      "teleop": 40.9,
-      "endgame": 14.6,
-      "drive_rank": 3.0,
-      "defense_rank": 3.4,
+      "team": 2846,
+      "score": 72.4,
+      "auto": 14.1,
+      "teleop": 40.2,
+      "endgame": 18.1,
+      "drive_rank": 2.7,
+      "defense_rank": 2.5,
       "breakdown": 0,
-      "comments": "They did very good defense and they did a lot of fuel passing  | Mechanical and programming issues. Didn\u2019t drive at start of match but not dead | Passed from red alliance to blue alliance  |  | "
-    },
-    {
-      "team": 7257,
-      "score": 52.1,
-      "auto": 20.5,
-      "teleop": 28.5,
-      "endgame": 3.1,
-      "drive_rank": 3.8,
-      "defense_rank": 3.5,
-      "breakdown": 1,
-      "comments": "Brown out during endgame. Great at shuttling then using to score | Climbed in auto  | Shut down | Auto climb | Defense was slay"
-    },
-    {
-      "team": 3630,
-      "score": 52.0,
-      "auto": 10.7,
-      "teleop": 37.2,
-      "endgame": 4.0,
-      "drive_rank": 2.8,
-      "defense_rank": 3.2,
-      "breakdown": 2,
-      "comments": "They were moving around in the middle of the field and it just stopped otherwise they were medium speed and quick with pickup and shooting  | Played defense the entire time with a broken intake. Intake got worse throughout and defense was not good |  | Primarily defensive bot | Auto broke. Broke down but turned back on in endgame"
+      "comments": " |  | Half field passing | They will have good auto cycles if they could shoot the fuel |  | "
     },
     {
       "team": 2239,
-      "score": 43.8,
-      "auto": 33.7,
-      "teleop": 9.5,
-      "endgame": 0.7,
-      "drive_rank": 2.6,
-      "defense_rank": 3.4,
+      "score": 67.7,
+      "auto": 28.2,
+      "teleop": 33.4,
+      "endgame": 6.1,
+      "drive_rank": 2.3,
+      "defense_rank": 3.2,
       "breakdown": 3,
-      "comments": "Stopped moving | Doesn\u2019t have an autoTipped over on its side | Played defense whole game  | Sat in red alliance and let them score | Went to play defense on red and got beachedParts fell off"
-    },
-    {
-      "team": 4741,
-      "score": 32.6,
-      "auto": 5.7,
-      "teleop": 14.7,
-      "endgame": 12.2,
-      "drive_rank": 2.0,
-      "defense_rank": 2.7,
-      "breakdown": 1,
-      "comments": "Did not run auto sat around a lot |  |  | Only emptied in auto didn\u2019t collect"
+      "comments": "Stopped moving |  | Doesn\u2019t have an autoTipped over on its side | Played defense whole game  | Sat in red alliance and let them score | Went to play defense on red and got beachedParts fell off"
     },
     {
       "team": 3926,
-      "score": 32.4,
-      "auto": 9.8,
-      "teleop": 13.6,
-      "endgame": 8.9,
+      "score": 62.4,
+      "auto": 2.3,
+      "teleop": 38.5,
+      "endgame": 21.6,
       "drive_rank": 1.8,
       "defense_rank": 3.5,
       "breakdown": 0,
-      "comments": "One ball shots at a time and slow  | Very slow shooting  | Didn\u2019t really shootWondered around a lot | "
+      "comments": "Slow shooter | One ball shots at a time and slow  | Very slow shooting  | Didn\u2019t really shootWondered around a lot | "
     },
     {
-      "team": 7858,
-      "score": 27.8,
-      "auto": 9.0,
-      "teleop": 12.9,
-      "endgame": 5.9,
-      "drive_rank": 2.7,
-      "defense_rank": 2.3,
-      "breakdown": 1,
-      "comments": "Was a rock during auto. Drive without purpose sometimes. |  | They are a defense robot they can defend pretty well |  | "
-    },
-    {
-      "team": 2169,
-      "score": 23.4,
-      "auto": 10.1,
-      "teleop": 11.6,
-      "endgame": 1.7,
-      "drive_rank": 2.7,
-      "defense_rank": 1.0,
+      "team": 3082,
+      "score": 59.0,
+      "auto": 9.8,
+      "teleop": 31.3,
+      "endgame": 17.9,
+      "drive_rank": 3.0,
+      "defense_rank": 3.4,
       "breakdown": 0,
-      "comments": "Mildly obstructed their own field | Broke intake (I\u2019m terrible and wasn\u2019t paying attn so that\u2019s all I\u2019ve got) |  No shooter I have no words |  | "
+      "comments": "They did very good defense and they did a lot of fuel passing  |  | Mechanical and programming issues. Didn\u2019t drive at start of match but not dead | Passed from red alliance to blue alliance  |  | "
+    },
+    {
+      "team": 3630,
+      "score": 55.9,
+      "auto": 1.8,
+      "teleop": 53.1,
+      "endgame": 1.0,
+      "drive_rank": 2.7,
+      "defense_rank": 3.0,
+      "breakdown": 2,
+      "comments": "They were moving around in the middle of the field and it just stopped otherwise they were medium speed and quick with pickup and shooting  |  | Played defense the entire time with a broken intake. Intake got worse throughout and defense was not good |  | Primarily defensive bot | Auto broke. Broke down but turned back on in endgame"
+    },
+    {
+      "team": 7257,
+      "score": 53.0,
+      "auto": 25.9,
+      "teleop": 23.3,
+      "endgame": 3.9,
+      "drive_rank": 3.6,
+      "defense_rank": 3.6,
+      "breakdown": 1,
+      "comments": "Brown out during endgame. Great at shuttling then using to score |  | Climbed in auto  | Shut down | Auto climb | Defense was slay"
     },
     {
       "team": 5348,
-      "score": 17.4,
-      "auto": 0.0,
-      "teleop": 16.5,
-      "endgame": 0.9,
-      "drive_rank": 1.5,
+      "score": 31.2,
+      "auto": 3.2,
+      "teleop": 22.7,
+      "endgame": 5.3,
+      "drive_rank": 1.8,
+      "defense_rank": 2.3,
+      "breakdown": 2,
+      "comments": " | Slow drinking auto. Helped the other team more than it did for our team. Bad defense  | Player defense the whole time | It has this cover thing and it got stuck in is up position so then it did Defence and it was bad |  | Ground passing robot"
+    },
+    {
+      "team": 7858,
+      "score": 30.7,
+      "auto": 5.6,
+      "teleop": 18.5,
+      "endgame": 6.7,
+      "drive_rank": 2.6,
       "defense_rank": 2.4,
       "breakdown": 1,
-      "comments": " | Slow drinking auto. Helped the other team more than it did for our team. Bad defense  | It has this cover thing and it got stuck in is up position so then it did Defence and it was bad |  | Ground passing robot"
+      "comments": "Was a rock during auto. Drive without purpose sometimes. |  |  |  | They are a defense robot they can defend pretty well |  | "
+    },
+    {
+      "team": 3277,
+      "score": 28.5,
+      "auto": 17.7,
+      "teleop": 7.1,
+      "endgame": 3.6,
+      "drive_rank": 2.5,
+      "defense_rank": 3.0,
+      "breakdown": 3,
+      "comments": "Defense all match | Quick cycles |  | Intake broke mostly a passing team |  | Ran into robot and hopper broke"
+    },
+    {
+      "team": 4741,
+      "score": 18.0,
+      "auto": 0.2,
+      "teleop": 12.7,
+      "endgame": 5.2,
+      "drive_rank": 2.0,
+      "defense_rank": 2.2,
+      "breakdown": 1,
+      "comments": " | Didn\u2019t move for first 10 seconds of auto. Not great driving or defense. Did not shoot | Did not run auto sat around a lot |  |  | Only emptied in auto didn\u2019t collect"
+    },
+    {
+      "team": 2169,
+      "score": 16.3,
+      "auto": 11.2,
+      "teleop": 4.4,
+      "endgame": 0.7,
+      "drive_rank": 2.5,
+      "defense_rank": 1.3,
+      "breakdown": 0,
+      "comments": "Mildly obstructed their own field |  | Broke intake (I\u2019m terrible and wasn\u2019t paying attn so that\u2019s all I\u2019ve got) |  No shooter I have no words |  | "
     },
     {
       "team": 2480,
-      "score": 11.2,
-      "auto": 2.3,
-      "teleop": 7.8,
-      "endgame": 1.0,
+      "score": 3.9,
+      "auto": 0.9,
+      "teleop": 1.9,
+      "endgame": 1.1,
       "drive_rank": 1.8,
       "defense_rank": 2.3,
       "breakdown": 0,
@@ -432,12 +432,12 @@
     }
   ],
   "event_key": "2026mnst",
-  "last_updated": "2026-05-16T18:02:38Z",
+  "last_updated": "2026-05-16T19:38:17Z",
   "blend": {
-    "played_quals": 29,
+    "played_quals": 37,
     "total_quals": 42,
     "epa_pct": 25,
-    "copr_pct": 52,
-    "prior_copr_pct": 23
+    "copr_pct": 66,
+    "prior_copr_pct": 9
   }
 }
